@@ -4,7 +4,7 @@
 Lightweight shell for simple JS applications, working on the basis of the Microsoft Edge system browser.
 
 ## Screenshots
-![](https://user-images.githubusercontent.com/9499881/143233461-5ea4ebf8-eb93-4da2-952a-3137d077eae7.png)
+![](https://user-images.githubusercontent.com/9499881/143234939-85b0364c-e7e6-4940-965e-f6490017b065.png)
 
 ## Setup
 1. Put "index.html" in the application folder or enter the URL in the configuration file.
