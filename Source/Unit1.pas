@@ -19,7 +19,8 @@ type
 
 var
   Main: TMain;
-  OldWidth, OldHeight: integer;
+  WinOldWidth, WinOldHeight: integer;
+  WinSaveSize: boolean;
 
 implementation
 
@@ -29,11 +30,11 @@ procedure TMain.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   Ini: TIniFile;
 begin
-  if (Main.WindowState <> wsMaximized) then
-    if (OldWidth <> Width) or (OldHeight <> Height) then begin
+  if (WinSaveSize) and (WindowState <> wsMaximized) then
+    if (WinOldWidth <> Width) or (WinOldHeight <> Height) then begin
       Ini:=TIniFile.Create(ExtractFilePath(ParamStr(0)) + 'Config.ini');
-      Ini.WriteInteger('Main', 'Width', Width);
-      Ini.WriteInteger('Main', 'Height', Height);
+      Ini.WriteInteger('Window', 'Width', Width);
+      Ini.WriteInteger('Window', 'Height', Height);
       Ini.Free;
     end;
 end;
@@ -45,10 +46,7 @@ begin
   EdgeBrowser.SetUserDataFolder(ExtractFilePath(ParamStr(0)) + 'Data');
 
   Ini:=TIniFile.Create(ExtractFilePath(ParamStr(0)) + 'Config.ini');
-  Width:=Ini.ReadInteger('Main', 'Width', Width);
-  Height:=Ini.ReadInteger('Main', 'Height', Height);
-  Main.Caption:=Ini.ReadString('Main', 'Caption', '');
-
+  Main.Caption:=Ini.ReadString('Main', 'Title', '');
   LocalFile:=Ini.ReadString('Main', 'File', '');
   LocalFile:=StringReplace(LocalFile, '%FULLPATH%/', ExtractFilePath(ParamStr(0)), []);
   LocalFile:=StringReplace(LocalFile, '\', '/', [rfReplaceAll]);
@@ -60,9 +58,33 @@ begin
 
   EdgeBrowser.Navigate(URL);
 
+  Width:=Ini.ReadInteger('Window', 'Width', Width);
+  Height:=Ini.ReadInteger('Window', 'Height', Height);
+  WinSaveSize:=Ini.ReadBool('Window', 'SaveSize', false);
+
+  if Ini.ReadBool('Window', 'HideMaximize', false) then
+    BorderIcons:=Main.BorderIcons-[biMaximize];
+    
+  if Ini.ReadBool('Window', 'HideMinimize', false) then
+    BorderIcons:=Main.BorderIcons-[biMinimize];
+    
+  case Ini.ReadInteger('Window', 'BorderStyle', 0) of
+    0: BorderStyle:=bsSizeable;
+    1: BorderStyle:=bsSingle;
+    2: BorderStyle:=bsDialog;
+    3: BorderStyle:=bsSizeToolWin;
+    4: BorderStyle:=bsToolWindow;
+  end;
+
+  case Ini.ReadInteger('Window', 'WindowState', 0) of
+    1: WindowState:=wsMaximized;
+    2: begin BorderStyle:=bsNone; WindowState:=wsMaximized; end;
+    //3: WindowState:=wsMinimized;
+  end;
+
   Ini.Free;
-  OldWidth:=Width;
-  OldHeight:=Height;
+  WinOldWidth:=Width;
+  WinOldHeight:=Height;
 end;
 
 end.

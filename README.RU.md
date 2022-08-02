@@ -8,7 +8,8 @@
 
 ## Настройка
 1. Положите "index.html" в папку с приложением или введите URL адрес, в конфигурационный файл.
-2. Измените иконку, с помощью [Resource Hacker](http://www.angusj.com/resourcehacker/).
+2. Измените параметры окна в конфигурационном файле `Config.ini`.
+3. Измените иконку, с помощью [Resource Hacker](http://www.angusj.com/resourcehacker/).
 
 ## Загрузка
 >Версия для Windows 10.<br>
