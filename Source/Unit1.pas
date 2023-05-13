@@ -46,7 +46,7 @@ begin
   EdgeBrowser.SetUserDataFolder(ExtractFilePath(ParamStr(0)) + 'Data');
 
   Ini:=TIniFile.Create(ExtractFilePath(ParamStr(0)) + 'Config.ini');
-  Main.Caption:=Ini.ReadString('Main', 'Title', '');
+  Main.Caption:=UTF8ToAnsi(Ini.ReadString('Main', 'Title', ''));
   LocalFile:=Ini.ReadString('Main', 'File', '');
   LocalFile:=StringReplace(LocalFile, '%FULLPATH%/', ExtractFilePath(ParamStr(0)), []);
   LocalFile:=StringReplace(LocalFile, '\', '/', [rfReplaceAll]);
