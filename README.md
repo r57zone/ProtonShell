@@ -9,7 +9,7 @@ Lightweight shell for simple JS applications, based on Microsoft Edge system bro
 ![](https://user-images.githubusercontent.com/9499881/143234939-85b0364c-e7e6-4940-965e-f6490017b065.png)
 
 ## Setup
-1. Put "index.html" in the application folder or enter the URL in the configuration file.
+1. Put the `index.html` file in the application folder or enter the URL address in the configuration file. You can also change the UserAgent.
 2. Change the window settings in the `Config.ini` configuration file.
 3. Change the icon with [Resource Hacker](http://www.angusj.com/resourcehacker/).
 

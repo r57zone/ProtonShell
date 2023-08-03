@@ -10,11 +10,9 @@ object Main: TMain
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
   Position = poScreenCenter
   OnClose = FormClose
   OnCreate = FormCreate
-  PixelsPerInch = 96
   TextHeight = 13
   object EdgeBrowser: TEdgeBrowser
     Left = 0
@@ -23,5 +21,9 @@ object Main: TMain
     Height = 469
     Align = alClient
     TabOrder = 0
+    UserDataFolder = '%LOCALAPPDATA%\bds.exe.WebView2'
+    OnCreateWebViewCompleted = EdgeBrowserCreateWebViewCompleted
+    ExplicitWidth = 796
+    ExplicitHeight = 468
   end
 end
