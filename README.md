@@ -1,6 +1,6 @@
 [![EN](https://user-images.githubusercontent.com/9499881/33184537-7be87e86-d096-11e7-89bb-f3286f752bc6.png)](https://github.com/r57zone/ProtonShell/blob/master/README.md) 
 [![RU](https://user-images.githubusercontent.com/9499881/27683795-5b0fbac6-5cd8-11e7-929c-057833e01fb1.png)](https://github.com/r57zone/ProtonShell/blob/master/README.RU.md) 
-&#8211; Other languages / Другие языки
+← Choose language | Выберите язык
 
 # ProtonShell
 Lightweight shell for websites, simple web applications, built on the Microsoft Edge system browser. With it, you can create a separate window for Twitch chat, an Instagram client for PC, Google Docs, or any web application within its own window.
