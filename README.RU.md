@@ -15,6 +15,7 @@
 
 ## Загрузка
 >Версия для Windows 10, 11.<br>
+
 **[Загрузить](https://github.com/r57zone/ProtonShell/releases)**
 
 ## Обратная связь
