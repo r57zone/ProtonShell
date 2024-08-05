@@ -1,7 +1,7 @@
 [![EN](https://user-images.githubusercontent.com/9499881/33184537-7be87e86-d096-11e7-89bb-f3286f752bc6.png)](https://github.com/r57zone/ProtonShell/blob/master/README.md) 
 [![RU](https://user-images.githubusercontent.com/9499881/27683795-5b0fbac6-5cd8-11e7-929c-057833e01fb1.png)](https://github.com/r57zone/ProtonShell/blob/master/README.RU.md) 
 # ProtonShell
-Легковесная оболочка для веб-сайтов, простых веб-приложений, работающая на базе системного браузера Microsoft Edge. На её основе можно сделать отдельное окно для чата Twitch, клиент инстаграмма для ПК, Google Docs или какое-то веб-приложение в своём окне.
+Легковесная оболочка для веб-сайтов, простых веб-приложений, работающая на базе системного браузера Microsoft Edge. На её основе можно сделать отдельное окно для Google Docs, чата Twitch, клиента инстаграмма для ПК, с пользовательским js скриптом или какое-то веб-приложение в своём окне.
 
 ## Скриншоты
 ![](https://github.com/r57zone/ProtonShell/assets/9499881/ca14a06b-4c3f-420a-8ec8-a742a2ae5f8d)
@@ -10,7 +10,7 @@
 
 ## Настройка
 1. Поместите файл `index.html` в папку с приложением или введите URL адрес, в конфигурационный файл. Также можно изменить UserAgent.
-2. Измените параметры окна в конфигурационном файле `Config.ini`.
+2. Измените название, параметры окна, UserAgent, ссылку и так далее, в конфигурационном файле `Config.ini`.
 3. Измените иконку, с помощью [Resource Hacker](http://www.angusj.com/resourcehacker/).
 
 ## Загрузка
