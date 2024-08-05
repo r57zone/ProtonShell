@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, WebView2, Winapi.ActiveX, Vcl.Edge, IniFiles;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, WebView2, Winapi.ActiveX, Vcl.Edge, IniFiles, ShellAPI;
 
 const // https://stackoverflow.com/questions/66692031/how-to-set-useragent-in-new-delphi-tedgebrowser
    IID_ICoreWebView2Settings2: TGUID = '{EE9A0F68-F46C-4E32-AC23-EF8CAC224D2A}';
@@ -23,6 +23,10 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EdgeBrowserCreateWebViewCompleted(Sender: TCustomEdgeBrowser;
       AResult: HRESULT);
+    procedure EdgeBrowserNewWindowRequested(Sender: TCustomEdgeBrowser;
+      Args: TNewWindowRequestedEventArgs);
+    procedure EdgeBrowserNavigationCompleted(Sender: TCustomEdgeBrowser;
+      IsSuccess: Boolean; WebErrorStatus: TOleEnum);
   private
     { Private declarations }
   public
@@ -34,7 +38,8 @@ var
   WinOldWidth, WinOldHeight, WinOldTop, WinOldLeft: integer;
   WinSaveSize, WinSavePos: boolean;
   EdgeUserAgent: string;
-
+  OpenExternalLinks, LoadUserScript: boolean;
+  UserScriptFile: TStringList;
 
 implementation
 
@@ -57,6 +62,37 @@ begin
     //raise Exception.Create('Get_UserAgent failed');
 end;
 
+procedure TMain.EdgeBrowserNavigationCompleted(Sender: TCustomEdgeBrowser;
+  IsSuccess: Boolean; WebErrorStatus: TOleEnum);
+begin
+  if UserScriptFile.Text <> '' then
+    EdgeBrowser.ExecuteScript(UserScriptFile.Text);
+end;
+
+procedure TMain.EdgeBrowserNewWindowRequested(Sender: TCustomEdgeBrowser;
+  Args: TNewWindowRequestedEventArgs);
+var
+  WebViewArgs: ICoreWebView2NewWindowRequestedEventArgs;
+  PUri: PWideChar;
+begin
+  if OpenExternalLinks = false then Exit;
+
+  // Get arguments WebView2
+  WebViewArgs:=Args as ICoreWebView2NewWindowRequestedEventArgs;
+
+  // Get URL
+  if Succeeded(WebViewArgs.Get_uri(PUri)) and (PUri <> nil) then begin
+    try
+      ShellExecute(0, 'open', PUri, nil, nil, SW_SHOWNORMAL);
+    finally
+      CoTaskMemFree(PUri);
+    end;
+
+    // Blocking the opening of a new window
+    Args.ArgsInterface.Set_Handled(1);
+  end;
+end;
+
 procedure TMain.FormClose(Sender: TObject; var Action: TCloseAction);
 var
   Ini: TIniFile;
@@ -76,20 +112,28 @@ begin
       Ini.WriteInteger('Window', 'Left', Left);
       Ini.Free;
     end;
+  UserScriptFile.Free;
 end;
 
 procedure TMain.FormCreate(Sender: TObject);
 var
-  Ini: TIniFile; URL, LocalFile: string;
+  Ini: TIniFile; URL, LocalFile, FulllPath, UserScriptPath: string;
 begin
-  EdgeBrowser.UserDataFolder := ExtractFilePath(ParamStr(0)) + 'Data';
+  EdgeBrowser.UserDataFolder:=ExtractFilePath(ParamStr(0)) + 'Data';
 
-  Ini:=TIniFile.Create(ExtractFilePath(ParamStr(0)) + 'Config.ini');
+  FulllPath:=ExtractFilePath(ParamStr(0));
+  Ini:=TIniFile.Create(FulllPath + 'Config.ini');
   Main.Caption:=UTF8ToAnsi(Ini.ReadString('Main', 'Title', ''));
   LocalFile:=Ini.ReadString('Main', 'File', '');
-  LocalFile:=StringReplace(LocalFile, '%FULLPATH%/', ExtractFilePath(ParamStr(0)), []);
+
+  LocalFile:=StringReplace(LocalFile, '%FULLPATH%/', FulllPath, []);
   LocalFile:=StringReplace(LocalFile, '\', '/', [rfReplaceAll]);
   EdgeUserAgent:=Ini.ReadString('Main', 'UserAgent', '');
+  OpenExternalLinks:=Ini.ReadBool('Main', 'OpenExternalLinks', false);
+  UserScriptPath:=StringReplace(Ini.ReadString('Main', 'UserScript', ''), '%FULLPATH%/', FulllPath, []);
+  UserScriptFile:=TStringList.Create;
+  if FileExists(UserScriptPath) then
+    UserScriptFile.LoadFromFile(UserScriptPath, TEncoding.UTF8);
 
   if LocalFile <> '' then
     URL:=LocalFile

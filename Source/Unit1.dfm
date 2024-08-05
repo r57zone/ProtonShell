@@ -2,8 +2,8 @@ object Main: TMain
   Left = 0
   Top = 0
   Caption = 'Main'
-  ClientHeight = 468
-  ClientWidth = 796
+  ClientHeight = 480
+  ClientWidth = 640
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,11 +17,15 @@ object Main: TMain
   object EdgeBrowser: TEdgeBrowser
     Left = 0
     Top = 0
-    Width = 796
-    Height = 468
+    Width = 640
+    Height = 480
     Align = alClient
     TabOrder = 0
     UserDataFolder = '%LOCALAPPDATA%\bds.exe.WebView2'
     OnCreateWebViewCompleted = EdgeBrowserCreateWebViewCompleted
+    OnNavigationCompleted = EdgeBrowserNavigationCompleted
+    OnNewWindowRequested = EdgeBrowserNewWindowRequested
+    ExplicitWidth = 792
+    ExplicitHeight = 467
   end
 end
