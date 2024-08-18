@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, WebView2, Winapi.ActiveX, Vcl.Edge, IniFiles, ShellAPI;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, WebView2, Winapi.ActiveX, Vcl.Edge, IniFiles, ShellAPI,
+  Registry, WinInet;
 
 const // https://stackoverflow.com/questions/66692031/how-to-set-useragent-in-new-delphi-tedgebrowser
    IID_ICoreWebView2Settings2: TGUID = '{EE9A0F68-F46C-4E32-AC23-EF8CAC224D2A}';
@@ -27,6 +28,7 @@ type
       Args: TNewWindowRequestedEventArgs);
     procedure EdgeBrowserNavigationCompleted(Sender: TCustomEdgeBrowser;
       IsSuccess: Boolean; WebErrorStatus: TOleEnum);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
   public
@@ -36,8 +38,8 @@ type
 var
   Main: TMain;
   WinOldWidth, WinOldHeight, WinOldTop, WinOldLeft: integer;
-  WinSaveSize, WinSavePos: boolean;
-  EdgeUserAgent: string;
+  WinSaveSize, WinSavePos, ReturnPrevSystemProxy: boolean;
+  EdgeUserAgent, SystemProxy, PrevSystemProxy: string;
   OpenExternalLinks, LoadUserScript: boolean;
   UserScriptFile: TStringList;
 
@@ -90,6 +92,42 @@ begin
 
     // Blocking the opening of a new window
     Args.ArgsInterface.Set_Handled(1);
+  end;
+end;
+
+procedure ProxyActivate(Enable: boolean);
+var
+  Reg: TRegistry;
+begin
+  Reg:=TRegistry.Create;
+  try
+    Reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Internet Settings', False);
+    Reg.WriteBool('ProxyEnable', Enable);
+    Reg.CloseKey;
+    InternetSetOption(0, INTERNET_OPTION_SETTINGS_CHANGED, 0, 0);
+  finally
+    Reg.Free;
+  end;
+end;
+
+procedure SetProxy(const Server: String);
+var
+  Reg: TRegistry;
+begin
+  Reg:=TRegistry.Create;
+  try
+    Reg.OpenKey('Software\Microsoft\Windows\CurrentVersion\Internet Settings', False);
+    if ReturnPrevSystemProxy then begin
+      if Reg.ValueExists('ProxyServer') then
+        PrevSystemProxy:=Reg.ReadString('ProxyServer')
+      else
+        PrevSystemProxy:='';
+      ShowMessage(PrevSystemProxy);
+    end;
+    Reg.WriteString('ProxyServer', Server);
+    Reg.CloseKey;
+  finally
+    Reg.Free;
   end;
 end;
 
@@ -183,7 +221,24 @@ begin
   if Ini.ReadBool('Window', 'StayOnTop', false) then
     FormStyle:=fsStayOnTop;
 
+  // System proxy
+  ReturnPrevSystemProxy:=Ini.ReadBool('Main', 'ReturnPreviousProxy', false);
+  SystemProxy:=Trim(Ini.ReadString('Main', 'SystemProxy', ''));
+  if SystemProxy <> '' then begin
+    SetProxy(SystemProxy);
+    ProxyActivate(true);
+  end;
+
   Ini.Free;
+end;
+
+procedure TMain.FormDestroy(Sender: TObject);
+begin
+  if ReturnPrevSystemProxy then begin
+    SetProxy(PrevSystemProxy);
+    ProxyActivate(true);
+  end else if SystemProxy <> '' then
+    ProxyActivate(false);
 end;
 
 end.

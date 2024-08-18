@@ -3,7 +3,7 @@
 ← Choose language | Выберите язык
 
 # ProtonShell
-Lightweight shell for websites, simple web applications, built on the Microsoft Edge system browser. Based on it you can make a separate window for Google Docs, Twitch chat, instagram client for PC, with js userscript or some web application in its own window.
+Lightweight shell for websites, simple web applications, built on the Microsoft Edge system browser. Based on it you can make a separate window for Google Docs, ChatGPT, Twitch chat, Instagram client for PC, with js userscript or some web application in its own window.
 
 ## Screenshots
 ![](https://github.com/r57zone/ProtonShell/assets/9499881/ca14a06b-4c3f-420a-8ec8-a742a2ae5f8d)
