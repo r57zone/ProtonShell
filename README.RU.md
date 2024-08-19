@@ -4,7 +4,8 @@
 Легковесная оболочка для веб-сайтов, простых веб-приложений, работающая на базе системного браузера Microsoft Edge. На её основе можно сделать отдельное окно для Google Docs, ChatGPT, чата Twitch, клиента инстаграмма для ПК, с пользовательским js скриптом или какое-то веб-приложение в своём окне.
 
 ## Скриншоты
-![](https://github.com/r57zone/ProtonShell/assets/9499881/ca14a06b-4c3f-420a-8ec8-a742a2ae5f8d)
+![](https://github.com/user-attachments/assets/902b2e58-664d-460f-abfd-37de3c8c920b)
+[![](https://github.com/user-attachments/assets/c5f0d903-e7d4-42f3-91ad-38f7b6f08d4b)](https://github.com/user-attachments/assets/22419527-2937-4bdc-a7b8-95097cf25de7)
 [![](https://github-production-user-asset-6210df.s3.amazonaws.com/9499881/258204596-0de84193-e560-4165-b104-69c5a0b63d34.jpg)](https://github.com/r57zone/ProtonShell/assets/9499881/6a2701eb-869e-480a-8548-628daec17fe7)
 [![](https://github-production-user-asset-6210df.s3.amazonaws.com/9499881/258204442-90eb9ab6-d54b-4131-a8e8-12735213935f.jpg)](https://github.com/r57zone/ProtonShell/assets/9499881/e1ff8392-ba8b-4373-a20b-0d1a29773c10)
 
