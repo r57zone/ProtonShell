@@ -155,13 +155,12 @@ end;
 
 procedure TMain.FormCreate(Sender: TObject);
 var
-  Ini: TIniFile; URL, LocalFile, FulllPath, UserScriptPath: string;
+  Ini: TIniFile; URL, LocalFile, FulllPath, UserScriptPath, IconPath: string;
 begin
   EdgeBrowser.UserDataFolder:=ExtractFilePath(ParamStr(0)) + 'Data';
 
   FulllPath:=ExtractFilePath(ParamStr(0));
   Ini:=TIniFile.Create(FulllPath + 'Config.ini');
-  Main.Caption:=UTF8ToAnsi(Ini.ReadString('Main', 'Title', ''));
   LocalFile:=Ini.ReadString('Main', 'File', '');
 
   LocalFile:=StringReplace(LocalFile, '%FULLPATH%/', FulllPath, []);
@@ -200,6 +199,12 @@ begin
   WinOldLeft:=Left;
 
   // Windows params
+  Main.Caption:=UTF8ToAnsi(Ini.ReadString('Window', 'Title', ''));
+
+  IconPath:=Trim(Ini.ReadString('Window', 'IconPath', ''));
+  if (IconPath <> '') and (FileExists(IconPath)) then
+    Main.Icon.LoadFromFile(IconPath);
+
   if Ini.ReadBool('Window', 'HideMaximize', false) then
     BorderIcons:=Main.BorderIcons-[biMaximize];
 
