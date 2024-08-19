@@ -161,13 +161,15 @@ begin
 
   FulllPath:=ExtractFilePath(ParamStr(0));
   Ini:=TIniFile.Create(FulllPath + 'Config.ini');
-  LocalFile:=Ini.ReadString('Main', 'File', '');
+  LocalFile:=Trim(Ini.ReadString('Main', 'File', ''));
 
-  LocalFile:=StringReplace(LocalFile, '%FULLPATH%/', FulllPath, []);
-  LocalFile:=StringReplace(LocalFile, '\', '/', [rfReplaceAll]);
+  // If the path is relative, then add the full path
+  if (LocalFile <> '') and (Length(LocalFile) > 1) and (LocalFile[2] <> ':') then
+    LocalFile:=FulllPath + LocalFile;
+
   EdgeUserAgent:=Ini.ReadString('Main', 'UserAgent', '');
   OpenExternalLinks:=Ini.ReadBool('Main', 'OpenExternalLinks', false);
-  UserScriptPath:=StringReplace(Ini.ReadString('Main', 'UserScript', ''), '%FULLPATH%/', FulllPath, []);
+  UserScriptPath:=Ini.ReadString('Main', 'UserScript', '');
   UserScriptFile:=TStringList.Create;
   if FileExists(UserScriptPath) then
     UserScriptFile.LoadFromFile(UserScriptPath, TEncoding.UTF8);
