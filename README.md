@@ -3,7 +3,7 @@
 ← Choose language | Выберите язык
 
 # ProtonShell
-Lightweight shell for websites, simple web applications, built on the Microsoft Edge system browser. Based on it you can make a separate window for Google Docs, ChatGPT, Twitch chat, Instagram client for PC, with js userscript or some web application in its own window.
+Lightweight shell for websites, simple web applications, built on the Microsoft Edge system browser. Based on it you can make a self window for Google Docs, ChatGPT, Twitch chat, Instagram client for PC, with js userscript or some web application in its own window.
 
 ## Screenshots
 ![](https://github.com/user-attachments/assets/902b2e58-664d-460f-abfd-37de3c8c920b)
@@ -15,6 +15,10 @@ Lightweight shell for websites, simple web applications, built on the Microsoft 
 1. Place the `index.html` file in the application folder or enter the URL address, in the configuration file.
 2. Change the name, window parameters, UserAgent, link and so on, proxy, in the `Config.ini` configuration file.
 3. Change the icon with [Resource Hacker](http://www.angusj.com/resourcehacker/).
+
+## Debug mode
+For fast debugging you can enable a special mode in which the following is available: resizing, changing User agent, clearing all data. To enable it, change the `Debug` parameter to `1`.
+[![](https://github.com/user-attachments/assets/c71837e8-9097-438f-8e15-93efc42b65d3)](https://github.com/user-attachments/assets/e2e88215-3e52-46dd-b24a-42eb6bfdc3e7)
 
 ## Download
 >Version for Windows 10, 11.<br>

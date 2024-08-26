@@ -14,6 +14,10 @@
 2. Измените название, параметры окна, UserAgent, ссылку и так далее, прокси, в конфигурационном файле `Config.ini`.
 3. Измените иконку, с помощью [Resource Hacker](http://www.angusj.com/resourcehacker/).
 
+## Режим отладки
+Для быстрой отладки можно включить специальный режим, в котором доступно: изменение размеров, изменение User agent, очистка всех данных. Для включения измените параметр `Debug` на `1`.
+[![](https://github.com/user-attachments/assets/cae19d08-4951-44bf-8278-2edcf076eb75)](https://github.com/user-attachments/assets/5d2eafc3-2825-48c3-bc82-718ca471549d)
+
 ## Загрузка
 >Версия для Windows 10, 11.<br>
 
