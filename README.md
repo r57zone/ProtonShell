@@ -18,6 +18,7 @@ Lightweight shell for websites, simple web applications, built on the Microsoft 
 
 ## Debug mode
 For fast debugging you can enable a special mode in which the following is available: resizing, changing User agent, clearing all data. To enable it, change the `Debug` parameter to `1`.
+
 [![](https://github.com/user-attachments/assets/c71837e8-9097-438f-8e15-93efc42b65d3)](https://github.com/user-attachments/assets/e2e88215-3e52-46dd-b24a-42eb6bfdc3e7)
 
 ## Download
