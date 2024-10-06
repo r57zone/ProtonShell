@@ -14,7 +14,7 @@ Lightweight shell for websites, simple web applications, built on the Microsoft 
 ## Setup
 1. Install [Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
 2. Place the `index.html` file in the application folder or enter the URL address, in the configuration file.
-3. Change the name, window parameters, icon, link, proxy, UserAgent and so on, in the `Config.ini` configuration file.
+3. Change the name, window parameters, icon, proxy, UserAgent and so on, in the `Config.ini` configuration file.
 4. If necessary, change the `exe` icon, using [Resource Hacker](http://www.angusj.com/resourcehacker/).
 
 ## Debug mode

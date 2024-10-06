@@ -12,7 +12,7 @@
 ## Настройка
 1. Установите [Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
 2. Поместите файл `index.html` в папку с приложением или введите URL адрес, в конфигурационный файл.
-3. Измените название, параметры окна, иконку, ссылку, прокси, UserAgent и так далее,  в конфигурационном файле `Config.ini`.
+3. Измените название, параметры окна, иконку, прокси, UserAgent и так далее,  в конфигурационном файле `Config.ini`.
 4. При необходимости измените иконку `exe`, с помощью [Resource Hacker](http://www.angusj.com/resourcehacker/).
 
 ## Режим отладки
