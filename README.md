@@ -12,9 +12,10 @@ Lightweight shell for websites, simple web applications, built on the Microsoft 
 [![](https://github-production-user-asset-6210df.s3.amazonaws.com/9499881/258204442-90eb9ab6-d54b-4131-a8e8-12735213935f.jpg)](https://github.com/r57zone/ProtonShell/assets/9499881/e1ff8392-ba8b-4373-a20b-0d1a29773c10)
 
 ## Setup
-1. Place the `index.html` file in the application folder or enter the URL address, in the configuration file.
-2. Change the name, window parameters, UserAgent, link and so on, proxy, in the `Config.ini` configuration file.
-3. Change the icon with [Resource Hacker](http://www.angusj.com/resourcehacker/).
+1. Install [Edge WebView2  WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/).
+2. Place the `index.html` file in the application folder or enter the URL address, in the configuration file.
+3. Change the name, window parameters, UserAgent, link and so on, proxy, in the `Config.ini` configuration file.
+4. Change the icon with [Resource Hacker](http://www.angusj.com/resourcehacker/).
 
 ## Debug mode
 For fast debugging you can enable a special mode in which the following is available: resizing, changing User agent, clearing all data. To enable it, change the `Debug` parameter to `1`.
