@@ -55,6 +55,18 @@ When using startup parameters, reading the configuration file is not used, excep
 
 `-d` - enable debugging mode.
 
+## Host Commands
+
+`open app.exe` or `open "app.exe" -param1 -param2 "test"` - open the application, you can use both full path and relative path.
+
+`folder Apps\` - list of files and folders.
+
+`del 1.txt` - delete file.
+
+`close` - close the application.
+
+Details on usage can be found in the `index.html` file.
+
 ## Debug mode
 For fast debugging you can enable a special mode in which the following is available: resizing, changing User agent, clearing all data. To enable it, change the `Debug` parameter to `1`.
 
