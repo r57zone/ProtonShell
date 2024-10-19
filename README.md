@@ -21,6 +21,10 @@ A lightweight shell for websites, simple web applications, based on the Microsof
 4. If necessary, change the `exe` icon, using [Resource Hacker](http://www.angusj.com/resourcehacker/) or specify the icon in the configuration file.
 
 ## Launch options
+When using startup parameters, reading the configuration file is not used, except for the `-c` parameter (custom configuration file).
+
+`-c anotherapp.ini` - read configuration file, with a different name. When used, other startup parameters are not used and all parameters are read from the configuration file.
+
 `-f index.html` - the path to the html file (relative or full).
 
 `-a “https://youtube.com/tv”` - the web site address.
