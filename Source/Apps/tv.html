@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TV UI</title>
+<style>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		user-select: none;
+	}
+	body {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
+		font-family: Arial, sans-serif;
+		background: rgb(0,59,119);
+		background: radial-gradient(circle, rgba(0,59,119,1) 0%, rgba(42,75,129,1) 100%);
+	}
+	.container {
+		display: grid;
+		grid-template-columns: repeat(5, 200px);
+		grid-template-rows: repeat(2, 120px);
+		grid-gap: 40px; /* Увеличенное расстояние между блоками */
+		justify-content: center;
+	}
+	.block {
+		width: 200px;
+		height: 120px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border-radius: 15px;
+		color: white;
+		font-size: 1.2rem;
+		transition: transform 0.2s ease, box-shadow 0.2s ease;
+		box-shadow: 0 0 25px rgba(0,0,0, 0.2);
+		cursor: pointer;
+	}
+	.block.selected {
+		transform: scale(1.2);
+		box-shadow: 0 0 25px rgba(4,105,226, 0.8);
+	}
+	.block:hover {
+		transform: scale(1.2);
+		box-shadow: 0 0 25px rgba(4,105,226, 0.8);
+	}
+</style>
+<script type="text/javascript">
+let container;
+let mainPath = '\\Apps\\';
+        
+const gradients = [
+	'linear-gradient(180deg, #e74c3c, #c33425)',  // 1 Красный
+	'linear-gradient(180deg, #1ac6fb, #1d72f2)',  // 2 Синий
+	'linear-gradient(180deg, #ffa601, #f9691d)',  // 3 Оранджевый
+	'linear-gradient(180deg, #2ecc71, #159f50)',  // 4 Зелёный
+	'linear-gradient(180deg, #d46cfb, #862ec3)',  // 5 Темно-розовый
+	'linear-gradient(180deg, #7882ff, #434dcf)',  // 6 Фиолетовый
+	'linear-gradient(180deg, #95a5a6, #626e6f)'   // 7 Серый 
+];
+
+let colorCounter = 0; // Счетчик для градиентов
+let selectedIndex = 0;
+const appsCountInLine = 5;
+
+function openApp(block) {
+	window.chrome.webview.postMessage('open ' + block.getAttribute('appPath').replaceAll('\\', '\\\\'));
+}
+
+function addApp(fileName) {
+	const block = document.createElement('div');
+	block.classList.add('block');
+	block.textContent = fileName.split('.').slice(0, -1).join('.');
+	block.setAttribute('appPath', mainPath + fileName);
+	block.setAttribute('onclick', 'openApp(this)');
+
+	// Применение градиента по счетчику
+	block.style.background = gradients[colorCounter % gradients.length];
+
+	// Обработчик наведения мыши
+	block.addEventListener('mouseover', () => {
+		selectedIndex = Array.from(container.children).indexOf(block);  // Обновляем selectedIndex
+		updateSelection();  // Обновляем состояние выделения
+	});
+
+	container.appendChild(block);
+	colorCounter++; // Увеличиваем счетчик
+}
+
+function updateSelection() {
+	const blocks = document.querySelectorAll('.block');
+	blocks.forEach((block, index) => {
+		if (index === selectedIndex) {
+			block.classList.add('selected');
+		} else {
+			block.classList.remove('selected');
+		}
+	});
+}
+
+function handleKeyDown(event) {
+	const blocks = document.querySelectorAll('.block');
+	if (event.key === 'ArrowRight') {
+		selectedIndex = (selectedIndex + 1) % blocks.length;
+	} else if (event.key === 'ArrowLeft') {
+		selectedIndex = (selectedIndex - 1 + blocks.length) % blocks.length;
+	} else if (event.key === 'ArrowDown') {
+		if (selectedIndex + appsCountInLine < blocks.length) {
+			selectedIndex += appsCountInLine;
+		}
+	} else if (event.key === 'ArrowUp') {
+		if (selectedIndex - appsCountInLine >= 0) {
+			selectedIndex -= appsCountInLine;
+		}
+	} else if (event.key === 'Enter') {
+		window.chrome.webview.postMessage('open ' + blocks[selectedIndex].getAttribute('appPath').replaceAll('\\', '\\\\'));
+	}
+	updateSelection();
+}
+
+function handleMessageFromHost(msg) {
+    const list = msg.split(/\n/);
+    list.forEach(item => {
+        if (!item.endsWith('.js') && !item.endsWith('.html')) {
+            addApp(item);
+        }
+    });
+    updateSelection(); // Начальное выделение
+}
+	
+document.addEventListener('DOMContentLoaded', function(){
+	container = document.getElementById('container');
+	document.addEventListener('keydown', handleKeyDown);
+	window.chrome.webview.postMessage('folder ' + mainPath);
+});
+</script>
+</head>
+<body>
+    <div class="container" id="container"></div>
+</body>
+</html>

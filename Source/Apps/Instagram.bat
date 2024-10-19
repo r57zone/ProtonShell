@@ -1,0 +1,1 @@
+cmd /d /c start "" /B "..\ProtonShell.exe" -a "https://instagram.com" -n "Instagram" -w 360 -h 640 -u "Instagram 343.0.0.33.101 Android (34/14; 383dpi; 1080x2145; samsung; SM-A156M; a15x; mt6835; pt_BR; 629710169)""
