@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="description" content="Description" />
+<title>Title</title>
+<style type="text/css"></style>
+<script type="text/javascript">
+function openApp(filePath) {
+	window.chrome.webview.postMessage('open ' + filePath);
+}
+
+function getFolderList(folderPath) {
+	window.chrome.webview.postMessage('folder ' + folderPath);
+}
+
+function deleteFile(filePath) {
+	window.chrome.webview.postMessage('del ' + filePath);
+}
+
+function openProtonShellDebugMode() {
+	let protonShellDebugMode = "\"Project1.exe\" -a \"https://google.com\" -n \"Google\" -d -w 720 -h 480";
+	window.chrome.webview.postMessage('open ' + protonShellDebugMode);
+}
+
+function closeApp() {
+	 window.chrome.webview.postMessage('close');
+}
+
+function handleMessageFromHost(msg) {
+	alert(msg);  
+}
+</script>
+</head>
+<body>
+	<h1>ProtonShell Test App</h1>
+	<a href="https://github.com/r57zone">r57zone github</a> | 
+	<a target="_blank" href="https://r57zone.github.io/">r57zone site (target blank)</a>
+	<br><br>
+	<button onclick="openApp('C:\\Windows\\System32\\notepad.exe')">Open Notepad</button><br><br>
+	<button onclick="openProtonShellDebugMode()">Open ProtonShell in Debug Mode</button><br><br>
+	<button onclick="getFolderList('\\')">Show Folder List</button><br><br>
+	<button onclick="deleteFile('1.txt')">Delete "1.txt"</button><br><br>
+	<button onclick="closeApp()">Close Application</button>
+</body>
+</html>
