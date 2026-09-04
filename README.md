@@ -78,49 +78,49 @@ All API functions are asynchronous and can accept a callback for the response.
 
 | Command               | Description                                         | Parameters             |
 | --------------------- | --------------------------------------------------- | ---------------------- |
-| `app.close()`         | Closes the application window.                      | —                      |
-| `app.fullscreen()`    | Switches the application window to fullscreen mode. | —                      |
-| `app.restore()`       | Restores the normal window mode.                    | —                      |
-| `app.setTitle(title)` | Changes the application window title.               | `title` — window title |
+| `app.close()`         | Closes the application window.                      | -                      |
+| `app.fullscreen()`    | Switches the application window to fullscreen mode. | -                      |
+| `app.restore()`       | Restores the normal window mode.                    | -                      |
+| `app.setTitle(title)` | Changes the application window title.               | `title` - window title |
 
 ### System
 
 | Command                   | Description                                                       | Parameters                                        |
 | ------------------------- | ----------------------------------------------------------------- | ------------------------------------------------- |
-| `system.open(path, args)` | Opens a file, folder, application or URL using the Windows shell. | `path` — path or URL; `args` — optional arguments |
+| `system.open(path, args)` | Opens a file, folder, application or URL using the Windows shell. | `path` - path or URL; `args` - optional arguments |
 
 ### File Operations
 
 | Command                      | Description                   | Parameters                        |
 | ---------------------------- | ----------------------------- | --------------------------------- |
-| `file.exists(path)`          | Checks whether a file exists. | `path` — file path                |
-| `file.writeText(path, text)` | Writes text to a file.        | `path` — file path; `text` — text |
-| `file.readText(path)`        | Reads text from a file.       | `path` — file path                |
-| `file.delete(path)`          | Deletes a file.               | `path` — file path                |
+| `file.exists(path)`          | Checks whether a file exists. | `path` - file path                |
+| `file.writeText(path, text)` | Writes text to a file.        | `path` - file path; `text` - text |
+| `file.readText(path)`        | Reads text from a file.       | `path` - file path                |
+| `file.delete(path)`          | Deletes a file.               | `path` - file path                |
 
 ### Folder Operations
 
 | Command               | Description                                         | Parameters           |
 | --------------------- | --------------------------------------------------- | -------------------- |
-| `folder.list(path)`   | Returns a list of files and folders in a directory. | `path` — folder path |
-| `folder.exists(path)` | Checks whether a folder exists.                     | `path` — folder path |
-| `folder.create(path)` | Creates a folder.                                   | `path` — folder path |
-| `folder.delete(path)` | Deletes an empty folder.                            | `path` — folder path |
+| `folder.list(path)`   | Returns a list of files and folders in a directory. | `path` - folder path |
+| `folder.exists(path)` | Checks whether a folder exists.                     | `path` - folder path |
+| `folder.create(path)` | Creates a folder.                                   | `path` - folder path |
+| `folder.delete(path)` | Deletes an empty folder.                            | `path` - folder path |
 
 ### Clipboard
 
 | Command               | Description                                          | Parameters    |
 | --------------------- | ---------------------------------------------------- | ------------- |
-| `clipboard.get()`     | Returns the current text from the Windows clipboard. | —             |
-| `clipboard.set(text)` | Sets the Windows clipboard text.                     | `text` — text |
+| `clipboard.get()`     | Returns the current text from the Windows clipboard. | -             |
+| `clipboard.set(text)` | Sets the Windows clipboard text.                     | `text` - text |
 
 ### Dialogs
 
 | Command                        | Description                                         | Parameters                    |
 | ------------------------------ | --------------------------------------------------- | ----------------------------- |
-| `dialog.openFile(options)`     | Opens the standard Windows file selection dialog.   | `options` — optional settings |
-| `dialog.saveFile(options)`     | Opens the standard Windows save file dialog.        | `options` — optional settings |
-| `dialog.selectFolder(options)` | Opens the standard Windows folder selection dialog. | `options` — optional settings |
+| `dialog.openFile(options)`     | Opens the standard Windows file selection dialog.   | `options` - optional settings |
+| `dialog.saveFile(options)`     | Opens the standard Windows save file dialog.        | `options` - optional settings |
+| `dialog.selectFolder(options)` | Opens the standard Windows folder selection dialog. | `options` - optional settings |
 
 ### Callbacks
 
