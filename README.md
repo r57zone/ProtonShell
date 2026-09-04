@@ -66,65 +66,63 @@ When using startup parameters, reading the configuration file is not used, excep
 
 ## Native API
 
-First, include the ProtonShell API script in your HTML application:
+First, include the ProtonShell API in your HTML application:
 
 ```html
 <script src="protonshell.js"></script>
 ```
 
-All API functions are asynchronous and can accept a callback for the response.
-
 ### Application Control
 
-| Command               | Description                                         | Parameters             |
-| --------------------- | --------------------------------------------------- | ---------------------- |
-| `app.close()`         | Closes the application window.                      | —                      |
-| `app.fullscreen()`    | Switches the application window to fullscreen mode. | —                      |
-| `app.restore()`       | Restores the normal window mode.                    | —                      |
-| `app.setTitle(title)` | Changes the application window title.               | `title` — window title |
+| Method                | Description                             | Parameters              | Example                   |
+| --------------------- | --------------------------------------- | ----------------------- | ------------------------- |
+| `app.close()`         | Closes the application.                 | -                       | `app.close();`            |
+| `app.fullscreen()`    | Switches the window to fullscreen mode. | -                       | `app.fullscreen();`       |
+| `app.restore()`       | Restores the window to normal mode.     | -                       | `app.restore();`          |
+| `app.setTitle(title)` | Sets the window title.                  | `title` - window title. | `app.setTitle("My App");` |
 
 ### System
 
-| Command                   | Description                                                       | Parameters                                        |
-| ------------------------- | ----------------------------------------------------------------- | ------------------------------------------------- |
-| `system.open(path, args)` | Opens a file, folder, application or URL using the Windows shell. | `path` — path or URL; `args` — optional arguments |
+| Method                    | Description                                 | Parameters                                                               | Example                               |
+| ------------------------- | ------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------- |
+| `system.open(path, args)` | Opens a file, folder, or URL using Windows. | `path` - file path, folder path, or URL.<br>`args` - optional arguments. | `system.open("https://example.com");` |
 
 ### File Operations
 
-| Command                      | Description                   | Parameters                        |
-| ---------------------------- | ----------------------------- | --------------------------------- |
-| `file.exists(path)`          | Checks whether a file exists. | `path` — file path                |
-| `file.writeText(path, text)` | Writes text to a file.        | `path` — file path; `text` — text |
-| `file.readText(path)`        | Reads text from a file.       | `path` — file path                |
-| `file.delete(path)`          | Deletes a file.               | `path` — file path                |
+| Method                       | Description                   | Parameters                                     | Example                                          |
+| ---------------------------- | ----------------------------- | ---------------------------------------------- | ------------------------------------------------ |
+| `file.exists(path)`          | Checks whether a file exists. | `path` - file path.                            | `file.exists("test.txt", callback);`             |
+| `file.writeText(path, text)` | Writes text to a file.        | `path` - file path.<br>`text` - file contents. | `file.writeText("test.txt", "Hello", callback);` |
+| `file.readText(path)`        | Reads a text file.            | `path` - file path.                            | `file.readText("test.txt", callback);`           |
+| `file.delete(path)`          | Deletes a file.               | `path` - file path.                            | `file.delete("test.txt", callback);`             |
 
 ### Folder Operations
 
-| Command               | Description                                         | Parameters           |
-| --------------------- | --------------------------------------------------- | -------------------- |
-| `folder.list(path)`   | Returns a list of files and folders in a directory. | `path` — folder path |
-| `folder.exists(path)` | Checks whether a folder exists.                     | `path` — folder path |
-| `folder.create(path)` | Creates a folder.                                   | `path` — folder path |
-| `folder.delete(path)` | Deletes an empty folder.                            | `path` — folder path |
+| Method                | Description                       | Parameters                       | Example                                      |
+| --------------------- | --------------------------------- | -------------------------------- | -------------------------------------------- |
+| `folder.list(path)`   | Returns the contents of a folder. | `path` - folder path.            | `folder.list("C:\\Apps", callback);`         |
+| `folder.exists(path)` | Checks whether a folder exists.   | `path` - folder path.            | `folder.exists("C:\\Apps", callback);`       |
+| `folder.create(path)` | Creates a folder.                 | `path` - path to the new folder. | `folder.create("C:\\Apps\\Test", callback);` |
+| `folder.delete(path)` | Deletes a folder.                 | `path` - folder path.            | `folder.delete("C:\\Apps\\Test", callback);` |
 
 ### Clipboard
 
-| Command               | Description                                          | Parameters    |
-| --------------------- | ---------------------------------------------------- | ------------- |
-| `clipboard.get()`     | Returns the current text from the Windows clipboard. | —             |
-| `clipboard.set(text)` | Sets the Windows clipboard text.                     | `text` — text |
+| Method                | Description                   | Parameters             | Example                             |
+| --------------------- | ----------------------------- | ---------------------- | ----------------------------------- |
+| `clipboard.get()`     | Gets text from the clipboard. | -                      | `clipboard.get(callback);`          |
+| `clipboard.set(text)` | Sets text in the clipboard.   | `text` - text to copy. | `clipboard.set("Hello", callback);` |
 
 ### Dialogs
 
-| Command                        | Description                                         | Parameters                    |
-| ------------------------------ | --------------------------------------------------- | ----------------------------- |
-| `dialog.openFile(options)`     | Opens the standard Windows file selection dialog.   | `options` — optional settings |
-| `dialog.saveFile(options)`     | Opens the standard Windows save file dialog.        | `options` — optional settings |
-| `dialog.selectFolder(options)` | Opens the standard Windows folder selection dialog. | `options` — optional settings |
+| Method                         | Description                      | Parameters                                                                                                    | Example                                                                                   |
+| ------------------------------ | -------------------------------- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `dialog.openFile(options)`     | Opens a file selection dialog.   | `options.title` - dialog title.<br>`options.filter` - file filter.<br>`options.defaultPath` - initial folder. | `dialog.openFile({ title: "Open file", filter: "Text files (*.txt)\|*.txt" }, callback);` |
+| `dialog.saveFile(options)`     | Opens a file save dialog.        | `options.title` - dialog title.<br>`options.filter` - file filter.<br>`options.defaultPath` - initial folder. | `dialog.saveFile({ title: "Save file", filter: "Text files (*.txt)\|*.txt" }, callback);` |
+| `dialog.selectFolder(options)` | Opens a folder selection dialog. | `options.title` - dialog title.<br>`options.allowCreateFolder` - allows creating a new folder.                | `dialog.selectFolder({ title: "Select folder", allowCreateFolder: true }, callback);`     |
 
-### Callbacks
+### Callback
 
-Any API function can accept a callback as its last parameter:
+The `callback` parameter is optional. If you don't need the result, simply omit the `callback` parameter.
 
 ```javascript
 file.readText("test.txt", function(response) {
@@ -134,7 +132,7 @@ file.readText("test.txt", function(response) {
 
 The callback receives a JSON response from ProtonShell.
 
-For detailed parameters, options and response formats, see the examples in `index.html`.
+For detailed parameters, options, and response formats, see the examples in `index.html`.
 
 ## Debug mode
 For fast debugging you can enable a special mode in which the following is available: resizing, changing User agent, clearing all data. To enable it, change the `Debug` parameter to `1`.
