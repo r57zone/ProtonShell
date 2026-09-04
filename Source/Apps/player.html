@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProtonShell Player</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+            font-size: 13px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            height: 100%;
+            margin: 0 auto;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            margin: 0 0 4px;
+            font-size: 24px;
+        }
+
+        .folder {
+            color: #777;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        button {
+            padding: 6px 11px;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            background: #fff;
+            color: #222;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        button:hover {
+            background: #eee;
+        }
+
+        button.active {
+            background: #ddd;
+        }
+
+        .playlist {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .song {
+            display: flex;
+            align-items: center;
+            min-height: 38px;
+            padding: 7px 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+
+        .song:last-child {
+            border-bottom: none;
+        }
+
+        .song:hover {
+            background: #f0f0f0;
+        }
+
+        .song.active {
+            background: #e8e8e8;
+        }
+
+        .song-number {
+            width: 35px;
+            flex: none;
+            color: #888;
+            text-align: center;
+        }
+
+        .song-icon {
+            width: 28px;
+            flex: none;
+        }
+
+        .song-name {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .song-size {
+            width: 80px;
+            flex: none;
+            color: #888;
+            text-align: right;
+        }
+
+        .player {
+            margin-top: 10px;
+            padding: 12px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .current-song {
+            margin-bottom: 8px;
+            font-weight: bold;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        audio {
+            display: block;
+            width: 100%;
+            margin-bottom: 9px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .status {
+            margin-top: 7px;
+            color: #777;
+            font-size: 12px;
+        }
+
+        .empty {
+            padding: 35px;
+            text-align: center;
+            color: #888;
+        }
+    </style>
+
+    <script>
+        var hostRequestId = 0;
+        var hostCallbacks = {};
+
+        function host(cmd, data, callback) {
+            var id = ++hostRequestId;
+
+            if (callback) {
+                hostCallbacks[id] = callback;
+            }
+
+            window.chrome.webview.postMessage(JSON.stringify({
+                "id": id,
+                "cmd": cmd,
+                "data": data || {}
+            }));
+        }
+
+        function handleMessageFromHost(message) {
+            var response;
+
+            try {
+                response = JSON.parse(message);
+            } catch (e) {
+                console.error("Invalid ProtonShell response:", message);
+                return;
+            }
+
+            if (response.id && hostCallbacks[response.id]) {
+                var callback = hostCallbacks[response.id];
+
+                delete hostCallbacks[response.id];
+
+                callback(response);
+            }
+        }
+
+        // Window
+
+        function windowSetTitle(title) {
+            host("app.setTitle", {"title": title});
+        }
+
+        // Folder
+
+        function folderList(path, callback) {
+            host("folder.list", {"path": path}, callback);
+        }
+
+        // Dialog
+
+        function dialogSelectFolder(options, callback) {
+            host("dialog.selectFolder", options || {}, callback);
+        }
+
+        var playlist = [];
+        var currentIndex = -1;
+        var currentFolder = "";
+        var shuffle = false;
+
+        var audio;
+
+        function chooseFolder() {
+            dialogSelectFolder({
+                "title": "Select music folder"
+            }, function(response) {
+                if (!response.ok) {
+                    setStatus(response.error || "Unable to select folder.");
+                    return;
+                }
+
+                if (!response.result || !response.result.path) {
+                    setStatus("Folder selection cancelled.");
+                    return;
+                }
+
+                loadFolder(response.result.path);
+            });
+        }
+
+        function loadFolder(path) {
+            currentFolder = path;
+
+            setStatus("Loading...");
+            document.getElementById("folder").textContent = path;
+
+            folderList(path, function(response) {
+                if (!response.ok) {
+                    playlist = [];
+                    renderPlaylist();
+
+                    setStatus(response.error || "Unable to read folder.");
+                    return;
+                }
+
+                var items = response.result.items || [];
+
+                playlist = items.filter(function(item) {
+                    return item.type === "file" &&
+                        isAudioFile(item.name);
+                });
+
+                playlist.sort(function(a, b) {
+                    return String(a.name).localeCompare(
+                        String(b.name),
+                        undefined,
+                        {
+                            numeric: true,
+                            sensitivity: "base"
+                        }
+                    );
+                });
+
+                currentIndex = -1;
+
+                renderPlaylist();
+
+                if (playlist.length === 0) {
+                    setStatus("No audio files found.");
+                } else {
+                    setStatus(playlist.length + " songs");
+                }
+
+                windowSetTitle(
+                    "ProtonShell Player - " +
+                    getFileName(path)
+                );
+            });
+        }
+
+        function isAudioFile(name) {
+            var extension = getExtension(name);
+
+            return [
+                "mp3",
+                "wav",
+                "ogg",
+                "oga",
+                "flac",
+                "m4a",
+                "aac",
+                "opus",
+                "webm"
+            ].indexOf(extension) >= 0;
+        }
+
+        function getExtension(name) {
+            var pos = name.lastIndexOf(".");
+
+            if (pos < 0) {
+                return "";
+            }
+
+            return name.substring(pos + 1).toLowerCase();
+        }
+
+        function renderPlaylist() {
+            var element = document.getElementById("playlist");
+
+            element.innerHTML = "";
+
+            if (playlist.length === 0) {
+                element.innerHTML =
+                    '<div class="empty">No audio files</div>';
+                return;
+            }
+
+            playlist.forEach(function(song, index) {
+                var row = document.createElement("div");
+
+                row.className = "song";
+
+                if (index === currentIndex) {
+                    row.className += " active";
+                }
+
+                row.onclick = function() {
+                    playSong(index);
+                };
+
+                row.innerHTML =
+                    '<div class="song-number">' +
+                    (index + 1) +
+                    '</div>' +
+
+                    '<div class="song-icon">🎵</div>' +
+
+                    '<div class="song-name">' +
+                    escapeHtml(song.name) +
+                    '</div>' +
+
+                    '<div class="song-size">' +
+                    formatSize(song.size) +
+                    '</div>';
+
+                element.appendChild(row);
+            });
+        }
+
+        function playSong(index) {
+            if (index < 0 || index >= playlist.length) {
+                return;
+            }
+
+            currentIndex = index;
+
+            var song = playlist[currentIndex];
+
+            audio.src = song.path;
+            audio.load();
+
+            audio.play().catch(function(error) {
+                console.error("Playback error:", error);
+                setStatus("Unable to play this file.");
+            });
+
+            renderPlaylist();
+
+            document.getElementById("currentSong").textContent =
+                song.name;
+
+            setStatus(
+                (currentIndex + 1) +
+                " / " +
+                playlist.length
+            );
+
+            windowSetTitle(
+                "ProtonShell Player - " +
+                song.name
+            );
+        }
+
+        function playPause() {
+            if (!audio.src) {
+                if (playlist.length > 0) {
+                    playSong(0);
+                }
+
+                return;
+            }
+
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        }
+
+        function stop() {
+            audio.pause();
+            audio.currentTime = 0;
+        }
+
+        function previousSong() {
+            if (playlist.length === 0) {
+                return;
+            }
+
+            if (currentIndex <= 0) {
+                playSong(playlist.length - 1);
+            } else {
+                playSong(currentIndex - 1);
+            }
+        }
+
+        function nextSong() {
+            if (playlist.length === 0) {
+                return;
+            }
+
+            if (shuffle) {
+                playRandomSong();
+                return;
+            }
+
+            if (currentIndex >= playlist.length - 1) {
+                playSong(0);
+            } else {
+                playSong(currentIndex + 1);
+            }
+        }
+
+        function playRandomSong() {
+            if (playlist.length === 0) {
+                return;
+            }
+
+            if (playlist.length === 1) {
+                playSong(0);
+                return;
+            }
+
+            var index;
+
+            do {
+                index = Math.floor(
+                    Math.random() * playlist.length
+                );
+            } while (index === currentIndex);
+
+            playSong(index);
+        }
+
+        function toggleShuffle() {
+            shuffle = !shuffle;
+
+            var button = document.getElementById("shuffle");
+
+            if (shuffle) {
+                button.className = "active";
+                setStatus("Shuffle enabled");
+            } else {
+                button.className = "";
+                setStatus("Shuffle disabled");
+            }
+        }
+
+        function formatSize(size) {
+            size = Number(size);
+
+            if (!size || size < 0) {
+                return "";
+            }
+
+            if (size < 1024) {
+                return size + " B";
+            }
+
+            if (size < 1024 * 1024) {
+                return (size / 1024).toFixed(1) + " KB";
+            }
+
+            if (size < 1024 * 1024 * 1024) {
+                return (size / (1024 * 1024)).toFixed(1) + " MB";
+            }
+
+            return (size / (1024 * 1024 * 1024)).toFixed(2) + " GB";
+        }
+
+        function getFileName(path) {
+            var cleanPath = path.replace(/[\\\/]+$/, "");
+
+            var pos = Math.max(
+                cleanPath.lastIndexOf("\\"),
+                cleanPath.lastIndexOf("/")
+            );
+
+            if (pos < 0) {
+                return cleanPath;
+            }
+
+            return cleanPath.substring(pos + 1);
+        }
+
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function setStatus(text) {
+            document.getElementById("status").textContent = text;
+        }
+
+        window.addEventListener("load", function() {
+            audio = document.getElementById("audio");
+
+            audio.addEventListener("ended", function() {
+                nextSong();
+            });
+
+            audio.addEventListener("play", function() {
+                setStatus(
+                    (currentIndex + 1) +
+                    " / " +
+                    playlist.length +
+                    " - Playing"
+                );
+            });
+
+            audio.addEventListener("pause", function() {
+                if (audio.currentTime > 0 &&
+                    !audio.ended) {
+
+                    setStatus(
+                        (currentIndex + 1) +
+                        " / " +
+                        playlist.length +
+                        " - Paused"
+                    );
+                }
+            });
+
+            audio.addEventListener("error", function() {
+                setStatus("Unable to play this file.");
+            });
+
+            windowSetTitle("ProtonShell Player");
+
+            chooseFolder();
+        });
+    </script>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>ProtonShell Player</h1>
+
+        <div class="folder" id="folder">
+            No folder selected
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <button onclick="chooseFolder()">
+            Open folder
+        </button>
+
+        <button id="shuffle" onclick="toggleShuffle()">
+            Shuffle
+        </button>
+    </div>
+
+    <div class="playlist" id="playlist">
+        <div class="empty">
+            Select a music folder
+        </div>
+    </div>
+
+    <div class="player">
+
+        <div class="current-song" id="currentSong">
+            No song selected
+        </div>
+
+        <audio id="audio" controls></audio>
+
+        <div class="controls">
+            <button onclick="previousSong()">Previous</button>
+            <button onclick="playPause()">Play / Pause</button>
+            <button onclick="stop()">Stop</button>
+            <button onclick="nextSong()">Next</button>
+        </div>
+
+        <div class="status" id="status">
+            Ready
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

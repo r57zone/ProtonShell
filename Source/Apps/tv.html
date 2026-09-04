@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TV UI</title>
+
 <style>
 	* {
 		margin: 0;
@@ -11,6 +12,7 @@
 		box-sizing: border-box;
 		user-select: none;
 	}
+
 	body {
 		display: flex;
 		justify-content: center;
@@ -20,13 +22,15 @@
 		background: rgb(0,59,119);
 		background: radial-gradient(circle, rgba(0,59,119,1) 0%, rgba(42,75,129,1) 100%);
 	}
+
 	.container {
 		display: grid;
 		grid-template-columns: repeat(5, 200px);
 		grid-template-rows: repeat(2, 120px);
-		grid-gap: 40px; /* Увеличенное расстояние между блоками */
+		grid-gap: 40px;
 		justify-content: center;
 	}
+
 	.block {
 		width: 200px;
 		height: 120px;
@@ -37,109 +41,130 @@
 		color: white;
 		font-size: 1.2rem;
 		transition: transform 0.2s ease, box-shadow 0.2s ease;
-		box-shadow: 0 0 25px rgba(0,0,0, 0.2);
+		box-shadow: 0 0 25px rgba(0,0,0,0.2);
 		cursor: pointer;
 	}
+
 	.block.selected {
 		transform: scale(1.2);
-		box-shadow: 0 0 25px rgba(4,105,226, 0.8);
+		box-shadow: 0 0 25px rgba(4,105,226,0.8);
 	}
+
 	.block:hover {
 		transform: scale(1.2);
-		box-shadow: 0 0 25px rgba(4,105,226, 0.8);
+		box-shadow: 0 0 25px rgba(4,105,226,0.8);
 	}
 </style>
-<script type="text/javascript">
-let container;
-let mainPath = '\\Apps\\';
-        
-const gradients = [
-	'linear-gradient(180deg, #e74c3c, #c33425)',  // 1 Красный
-	'linear-gradient(180deg, #1ac6fb, #1d72f2)',  // 2 Синий
-	'linear-gradient(180deg, #ffa601, #f9691d)',  // 3 Оранджевый
-	'linear-gradient(180deg, #2ecc71, #159f50)',  // 4 Зелёный
-	'linear-gradient(180deg, #d46cfb, #862ec3)',  // 5 Темно-розовый
-	'linear-gradient(180deg, #7882ff, #434dcf)',  // 6 Фиолетовый
-	'linear-gradient(180deg, #95a5a6, #626e6f)'   // 7 Серый 
+
+<script src="../protonshell.js"></script>
+
+<script>
+var container;
+var mainPath = "\\Apps\\";
+
+var gradients = [
+	"linear-gradient(180deg, #e74c3c, #c33425)",
+	"linear-gradient(180deg, #1ac6fb, #1d72f2)",
+	"linear-gradient(180deg, #ffa601, #f9691d)",
+	"linear-gradient(180deg, #2ecc71, #159f50)",
+	"linear-gradient(180deg, #d46cfb, #862ec3)",
+	"linear-gradient(180deg, #7882ff, #434dcf)",
+	"linear-gradient(180deg, #95a5a6, #626e6f)"
 ];
 
-let colorCounter = 0; // Счетчик для градиентов
-let selectedIndex = 0;
-const appsCountInLine = 5;
+var colorCounter = 0;
+var selectedIndex = 0;
+var appsCountInLine = 5;
 
 function openApp(block) {
-	window.chrome.webview.postMessage('open ' + block.getAttribute('appPath').replaceAll('\\', '\\\\'));
+	appOpen(block.getAttribute("appPath"), "");
 }
 
 function addApp(fileName) {
-	const block = document.createElement('div');
-	block.classList.add('block');
-	block.textContent = fileName.split('.').slice(0, -1).join('.');
-	block.setAttribute('appPath', mainPath + fileName);
-	block.setAttribute('onclick', 'openApp(this)');
+	var block = document.createElement("div");
+	block.classList.add("block");
+	block.textContent = fileName.split(".").slice(0, -1).join(".");
+	block.setAttribute("appPath", mainPath + fileName);
 
-	// Применение градиента по счетчику
 	block.style.background = gradients[colorCounter % gradients.length];
 
-	// Обработчик наведения мыши
-	block.addEventListener('mouseover', () => {
-		selectedIndex = Array.from(container.children).indexOf(block);  // Обновляем selectedIndex
-		updateSelection();  // Обновляем состояние выделения
+	block.addEventListener("click", function() {
+		openApp(block);
+	});
+
+	block.addEventListener("mouseover", function() {
+		selectedIndex = Array.from(container.children).indexOf(block);
+		updateSelection();
 	});
 
 	container.appendChild(block);
-	colorCounter++; // Увеличиваем счетчик
+	colorCounter++;
 }
 
 function updateSelection() {
-	const blocks = document.querySelectorAll('.block');
-	blocks.forEach((block, index) => {
+	var blocks = document.querySelectorAll(".block");
+
+	blocks.forEach(function(block, index) {
 		if (index === selectedIndex) {
-			block.classList.add('selected');
+			block.classList.add("selected");
 		} else {
-			block.classList.remove('selected');
+			block.classList.remove("selected");
 		}
 	});
 }
 
 function handleKeyDown(event) {
-	const blocks = document.querySelectorAll('.block');
-	if (event.key === 'ArrowRight') {
+	var blocks = document.querySelectorAll(".block");
+
+	if (event.key === "ArrowRight") {
 		selectedIndex = (selectedIndex + 1) % blocks.length;
-	} else if (event.key === 'ArrowLeft') {
+	} else if (event.key === "ArrowLeft") {
 		selectedIndex = (selectedIndex - 1 + blocks.length) % blocks.length;
-	} else if (event.key === 'ArrowDown') {
+	} else if (event.key === "ArrowDown") {
 		if (selectedIndex + appsCountInLine < blocks.length) {
 			selectedIndex += appsCountInLine;
 		}
-	} else if (event.key === 'ArrowUp') {
+	} else if (event.key === "ArrowUp") {
 		if (selectedIndex - appsCountInLine >= 0) {
 			selectedIndex -= appsCountInLine;
 		}
-	} else if (event.key === 'Enter') {
-		window.chrome.webview.postMessage('open ' + blocks[selectedIndex].getAttribute('appPath').replaceAll('\\', '\\\\'));
+	} else if (event.key === "Enter") {
+		appOpen(blocks[selectedIndex].getAttribute("appPath"), "");
 	}
+
 	updateSelection();
 }
 
-function handleMessageFromHost(msg) {
-    const list = msg.split(/\n/);
-    list.forEach(item => {
-        if (!item.endsWith('.js') && !item.endsWith('.html')) {
-            addApp(item);
-        }
-    });
-    updateSelection(); // Начальное выделение
-}
-	
-document.addEventListener('DOMContentLoaded', function(){
-	container = document.getElementById('container');
-	document.addEventListener('keydown', handleKeyDown);
-	window.chrome.webview.postMessage('folder ' + mainPath);
+document.addEventListener("DOMContentLoaded", function() {
+	container = document.getElementById("container");
+
+	document.body.focus();
+	document.addEventListener("keydown", handleKeyDown);
+
+	folderList(mainPath, function(response) {
+		if (!response.ok)
+			return;
+
+		var items = response.result.items || response.result;
+
+		items.forEach(function(item) {
+			var fileName = typeof item === "string" ? item : item.name;
+
+			if (!fileName.endsWith(".js") && !fileName.endsWith(".html")) {
+				addApp(fileName);
+			}
+		});
+
+		updateSelection();
+	});
 });
 </script>
+
 </head>
+
 <body>
-    <div class="container" id="container"></div>
+
+<div class="container" id="container"></div>
+
 </body>
 </html>

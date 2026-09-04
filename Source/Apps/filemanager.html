@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProtonShell File Manager</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+            font-size: 13px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            height: 100%;
+            margin: 0 auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .pathbar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .pathbar input {
+            flex: 1;
+        }
+
+        input {
+            min-width: 0;
+            padding: 7px 8px;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            background: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 13px;
+        }
+
+        button {
+            padding: 6px 10px;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            background: #fff;
+            color: #222;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        button:hover {
+            background: #eee;
+        }
+
+        .file-list {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .file-row {
+            display: flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 6px 10px;
+            border-bottom: 1px solid #eee;
+            cursor: default;
+        }
+
+        .file-row:last-child {
+            border-bottom: none;
+        }
+
+        .file-row:hover {
+            background: #f0f0f0;
+        }
+
+        .file-icon {
+            width: 28px;
+            flex: none;
+            font-size: 15px;
+        }
+
+        .file-name {
+            flex: 1;
+            min-width: 0;
+            padding-right: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-type {
+            width: 90px;
+            flex: none;
+            color: #888;
+        }
+
+        .file-size {
+            width: 90px;
+            flex: none;
+            color: #777;
+            text-align: right;
+        }
+
+        .file-date {
+            width: 145px;
+            flex: none;
+            color: #777;
+            text-align: right;
+        }
+
+        .status {
+            margin-top: 7px;
+            color: #777;
+            font-size: 12px;
+        }
+
+        .empty {
+            padding: 30px;
+            text-align: center;
+            color: #888;
+        }
+
+        .context-menu {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            min-width: 150px;
+            padding: 4px 0;
+            background: #fff;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .context-menu div {
+            padding: 7px 12px;
+            cursor: pointer;
+        }
+
+        .context-menu div:hover {
+            background: #eee;
+        }
+
+        @media (max-width: 700px) {
+            .file-type,
+            .file-date {
+                display: none;
+            }
+
+            .file-size {
+                width: 80px;
+            }
+        }
+    </style>
+
+    <script>
+        var hostRequestId = 0;
+        var hostCallbacks = {};
+
+        function host(cmd, data, callback) {
+            var id = ++hostRequestId;
+
+            if (callback) {
+                hostCallbacks[id] = callback;
+            }
+
+            window.chrome.webview.postMessage(JSON.stringify({
+                "id": id,
+                "cmd": cmd,
+                "data": data || {}
+            }));
+        }
+
+        function handleMessageFromHost(message) {
+            var response;
+
+            try {
+                response = JSON.parse(message);
+            } catch (e) {
+                console.error("Invalid ProtonShell response:", message);
+                return;
+            }
+
+            if (response.id && hostCallbacks[response.id]) {
+                var callback = hostCallbacks[response.id];
+
+                delete hostCallbacks[response.id];
+
+                callback(response);
+            }
+        }
+
+        // Window
+
+        function windowSetTitle(title) {
+            host("app.setTitle", {"title": title});
+        }
+
+        // App
+
+        function appOpen(path, args) {
+            host("system.open", {"path": path, "args": args || ""});
+        }
+
+        // File
+
+        function fileDelete(path, callback) {
+            host("file.delete", {"path": path}, callback);
+        }
+
+        // Folder
+
+        function folderList(path, callback) {
+            host("folder.list", {"path": path}, callback);
+        }
+
+        function folderCreate(path, callback) {
+            host("folder.create", {"path": path}, callback);
+        }
+
+        function folderDelete(path, callback) {
+            host("folder.delete", {"path": path}, callback);
+        }
+
+        // Dialog
+
+        function dialogSelectFolder(options, callback) {
+            host("dialog.selectFolder", options || {}, callback);
+        }
+
+        // Clipboard
+
+        function clipboardSet(text, callback) {
+            host("clipboard.set", {"text": text}, callback);
+        }
+
+        var currentPath = "C:\\";
+        var selectedPath = "";
+        var selectedIsFolder = false;
+
+        function loadFolder(path) {
+            if (!path) {
+                return;
+            }
+
+            currentPath = path;
+
+            selectedPath = "";
+            selectedIsFolder = false;
+
+            document.getElementById("path").value = path;
+            document.getElementById("fileList").innerHTML =
+                '<div class="empty">Loading...</div>';
+
+            folderList(path, function(response) {
+                if (!response.ok) {
+                    document.getElementById("fileList").innerHTML =
+                        '<div class="empty">Error: ' +
+                        escapeHtml(response.error || "Unknown error") +
+                        '</div>';
+
+                    updateStatus();
+                    return;
+                }
+
+                renderFiles(response.result);
+            });
+        }
+
+        function renderFiles(result) {
+            var list = document.getElementById("fileList");
+
+            list.innerHTML = "";
+
+            var items = result.items || [];
+
+            if (!Array.isArray(items) || items.length === 0) {
+                list.innerHTML = '<div class="empty">Folder is empty</div>';
+                updateStatus();
+                return;
+            }
+
+            items.sort(function(a, b) {
+                if (a.type === "folder" && b.type !== "folder") {
+                    return -1;
+                }
+
+                if (a.type !== "folder" && b.type === "folder") {
+                    return 1;
+                }
+
+                return String(a.name || "").localeCompare(
+                    String(b.name || "")
+                );
+            });
+
+            items.forEach(function(item) {
+                var row = document.createElement("div");
+                var isFolder = item.type === "folder";
+                var name = item.name || "";
+                var path = item.path || joinPath(currentPath, name);
+
+                row.className = "file-row";
+
+                row.ondblclick = function() {
+                    if (isFolder) {
+                        loadFolder(path);
+                    } else {
+                        appOpen(path, "");
+                    }
+                };
+
+                row.oncontextmenu = function(event) {
+                    event.preventDefault();
+
+                    selectedPath = path;
+                    selectedIsFolder = isFolder;
+
+                    showContextMenu(event.clientX, event.clientY);
+                };
+
+                row.innerHTML =
+                    '<div class="file-icon">' +
+                    (isFolder ? "📁" : "📄") +
+                    '</div>' +
+
+                    '<div class="file-name">' +
+                    escapeHtml(name) +
+                    '</div>' +
+
+                    '<div class="file-type">' +
+                    (isFolder ? "Folder" : getExtension(name)) +
+                    '</div>' +
+
+                    '<div class="file-size">' +
+                    (isFolder ? "" : formatSize(item.size)) +
+                    '</div>' +
+
+                    '<div class="file-date">' +
+                    formatDate(item.modified) +
+                    '</div>';
+
+                list.appendChild(row);
+            });
+
+            updateStatus(items.length);
+        }
+
+        function joinPath(path, name) {
+            if (path.charAt(path.length - 1) === "\\" ||
+                path.charAt(path.length - 1) === "/") {
+                return path + name;
+            }
+
+            return path + "\\" + name;
+        }
+
+        function getExtension(name) {
+            var pos = name.lastIndexOf(".");
+
+            if (pos < 0) {
+                return "";
+            }
+
+            return name.substring(pos + 1).toUpperCase();
+        }
+
+        function formatSize(size) {
+            size = Number(size);
+
+            if (!size || size < 0) {
+                return "0 B";
+            }
+
+            if (size < 1024) {
+                return size + " B";
+            }
+
+            if (size < 1024 * 1024) {
+                return (size / 1024).toFixed(1) + " KB";
+            }
+
+            if (size < 1024 * 1024 * 1024) {
+                return (size / (1024 * 1024)).toFixed(1) + " MB";
+            }
+
+            return (size / (1024 * 1024 * 1024)).toFixed(2) + " GB";
+        }
+
+        function formatDate(value) {
+            if (!value) {
+                return "";
+            }
+
+            var date = new Date(value);
+
+            if (isNaN(date.getTime())) {
+                return value;
+            }
+
+            function pad(value) {
+                return value < 10 ? "0" + value : value;
+            }
+
+            return date.getFullYear() + "-" +
+                pad(date.getMonth() + 1) + "-" +
+                pad(date.getDate()) + " " +
+                pad(date.getHours()) + ":" +
+                pad(date.getMinutes());
+        }
+
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function chooseFolder() {
+            dialogSelectFolder({
+                "title": "Select folder"
+            }, function(response) {
+                if (response.ok &&
+                    response.result &&
+                    response.result.path) {
+
+                    loadFolder(response.result.path);
+                }
+            });
+        }
+
+        function createFolder() {
+            var name = prompt("Folder name:");
+
+            if (!name) {
+                return;
+            }
+
+            folderCreate(joinPath(currentPath, name), function(response) {
+                if (response.ok) {
+                    loadFolder(currentPath);
+                } else {
+                    alert(response.error || "Unable to create folder.");
+                }
+            });
+        }
+
+        function deleteSelected() {
+            if (!selectedPath) {
+                return;
+            }
+
+            if (!confirm("Delete this item?")) {
+                return;
+            }
+
+            if (selectedIsFolder) {
+                folderDelete(selectedPath, function(response) {
+                    if (response.ok) {
+                        loadFolder(currentPath);
+                    } else {
+                        alert(response.error || "Unable to delete folder.");
+                    }
+                });
+            } else {
+                fileDelete(selectedPath, function(response) {
+                    if (response.ok) {
+                        loadFolder(currentPath);
+                    } else {
+                        alert(response.error || "Unable to delete file.");
+                    }
+                });
+            }
+
+            hideContextMenu();
+        }
+
+        function copySelectedPath() {
+            if (!selectedPath) {
+                return;
+            }
+
+            clipboardSet(selectedPath, function(response) {
+                if (!response.ok) {
+                    alert(response.error || "Clipboard error.");
+                }
+            });
+
+            hideContextMenu();
+        }
+
+        function openSelected() {
+            if (!selectedPath) {
+                return;
+            }
+
+            if (selectedIsFolder) {
+                loadFolder(selectedPath);
+            } else {
+                appOpen(selectedPath, "");
+            }
+
+            hideContextMenu();
+        }
+
+        function showContextMenu(x, y) {
+            var menu = document.getElementById("contextMenu");
+
+            menu.style.left = x + "px";
+            menu.style.top = y + "px";
+            menu.style.display = "block";
+        }
+
+        function hideContextMenu() {
+            document.getElementById("contextMenu").style.display = "none";
+        }
+
+        function updateStatus(count) {
+            var text = currentPath;
+
+            if (typeof count === "number") {
+                text += " | " + count + " items";
+            }
+
+            document.getElementById("status").textContent = text;
+        }
+
+        function goUp() {
+            var path = currentPath.replace(/[\\\/]+$/, "");
+
+            if (path.length === 2 && path.charAt(1) === ":") {
+                path += "\\";
+            }
+
+            var pos = Math.max(
+                path.lastIndexOf("\\"),
+                path.lastIndexOf("/")
+            );
+
+            if (pos > 0) {
+                loadFolder(path.substring(0, pos + 1));
+            }
+        }
+
+        window.addEventListener("click", function() {
+            hideContextMenu();
+        });
+
+        window.addEventListener("keydown", function(event) {
+            if (event.key === "Backspace") {
+                goUp();
+            }
+
+            if (event.key === "Delete") {
+                deleteSelected();
+            }
+        });
+
+        window.addEventListener("load", function() {
+            windowSetTitle("ProtonShell File Manager");
+
+            document.getElementById("path").addEventListener(
+                "keydown",
+                function(event) {
+                    if (event.key === "Enter") {
+                        loadFolder(this.value);
+                    }
+                }
+            );
+
+            loadFolder("C:\\");
+        });
+    </script>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="toolbar">
+        <button onclick="goUp()">Up</button>
+        <button onclick="chooseFolder()">Open folder</button>
+        <button onclick="createFolder()">New folder</button>
+        <button onclick="deleteSelected()">Delete</button>
+        <button onclick="loadFolder(currentPath)">Refresh</button>
+    </div>
+
+    <div class="pathbar">
+        <input id="path" value="C:\\" placeholder="C:\Path\To\Folder">
+
+        <button onclick="loadFolder(document.getElementById('path').value)">
+            Go
+        </button>
+    </div>
+
+    <div class="file-list" id="fileList">
+        <div class="empty">Loading...</div>
+    </div>
+
+    <div class="status" id="status">
+        Current folder: C:\
+    </div>
+
+</div>
+
+<div class="context-menu" id="contextMenu">
+    <div onclick="openSelected()">Open</div>
+    <div onclick="copySelectedPath()">Copy path</div>
+    <div onclick="deleteSelected()">Delete</div>
+</div>
+
+</body>
+</html>

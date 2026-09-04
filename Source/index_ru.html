@@ -221,7 +221,7 @@ function copyCode(code) {
 	var fullCode = "<script src=\"protonshell.js\"><\/script>\n\n" + code;
 
 	navigator.clipboard.writeText(fullCode).then(function() {
-		showToast("Code copied");
+		showToast("Код скопирован");
 	});
 }
 </script>
@@ -234,30 +234,30 @@ function copyCode(code) {
 	<h1>ProtonShell API</h1>
 
 	<p class="subtitle">
-		Native API for HTML applications hosted by ProtonShell.
+		Нативный API для HTML-приложений, размещённых в ProtonShell.
 	</p>
 
 	<div class="note">
-		ProtonShell exposes a small native API to HTML applications.
-		Include <b>protonshell.js</b> in your application to access
-		window, file, folder, clipboard and dialog functions.
-		All API operations are asynchronous and use callbacks for responses.
+		ProtonShell предоставляет небольшой нативный API для HTML-приложений.
+		Подключите <b>protonshell.js</b> в своём приложении, чтобы получить доступ
+		к функциям окна, файлов, папок, буфера обмена и диалогов.
+		Все операции API являются асинхронными и используют callback-функции для получения ответов.
 	</div>
 
 
 	<div class="section">
 
-		<div class="section-title">WINDOW</div>
+		<div class="section-title">ОКНО</div>
 
 		<div class="method">
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">window.close</div>
-					<div class="method-description">Closes the ProtonShell window.</div>
+					<div class="method-description">Закрывает окно ProtonShell.</div>
 				</div>
 
-				<button onclick="appClose()">Run</button>
-				<button onclick='copyCode("appClose();")'>Copy</button>
+				<button onclick="appClose()">Запустить</button>
+				<button onclick='copyCode("appClose();")'>Копировать</button>
 			</div>
 		</div>
 
@@ -266,11 +266,11 @@ function copyCode(code) {
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">window.fullscreen</div>
-					<div class="method-description">Switches the ProtonShell window to fullscreen mode.</div>
+					<div class="method-description">Переключает окно ProtonShell в полноэкранный режим.</div>
 				</div>
 
-				<button onclick="appFullscreen()">Run</button>
-				<button onclick='copyCode("appFullscreen();")'>Copy</button>
+				<button onclick="appFullscreen()">Запустить</button>
+				<button onclick='copyCode("appFullscreen();")'>Копировать</button>
 			</div>
 		</div>
 
@@ -279,11 +279,11 @@ function copyCode(code) {
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">window.restore</div>
-					<div class="method-description">Restores the normal window mode.</div>
+					<div class="method-description">Восстанавливает обычный режим окна.</div>
 				</div>
 
-				<button onclick="appRestore()">Run</button>
-				<button onclick='copyCode("appRestore();")'>Copy</button>
+				<button onclick="appRestore()">Запустить</button>
+				<button onclick='copyCode("appRestore();")'>Копировать</button>
 			</div>
 		</div>
 
@@ -292,17 +292,17 @@ function copyCode(code) {
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">window.setTitle</div>
-					<div class="method-description">Changes the window title.</div>
+					<div class="method-description">Изменяет заголовок окна.</div>
 				</div>
 
-				<input id="windowTitle" value="ProtonShell API Demo">
+				<input id="windowTitle" value="Демонстрация ProtonShell API">
 
 				<button onclick="appSetTitle(document.getElementById('windowTitle').value)">
-					Run
+					Запустить
 				</button>
 
 				<button onclick='copyCode("appSetTitle(\"ProtonShell API Demo\");")'>
-					Copy
+					Копировать
 				</button>
 			</div>
 		</div>
@@ -312,37 +312,37 @@ function copyCode(code) {
 
 	<div class="section">
 
-		<div class="section-title">APP</div>
+		<div class="section-title">ПРИЛОЖЕНИЕ</div>
 
 		<div class="method">
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">app.open</div>
 					<div class="method-description">
-						Opens a file, application, folder or URL using the Windows shell.
+						Открывает файл, приложение, папку или URL с помощью оболочки Windows.
 					</div>
 				</div>
 
 				<div class="dropdown">
-					<button>Run ▾</button>
+					<button>Запустить ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick="appOpen('https://example.com', '')">
-							Site
+							Сайт
 						</button>
 
 						<button onclick="appOpen('C:\\Windows\\System32\\notepad.exe', '')">
-							Notepad
+							Блокнот
 						</button>
 						
 						<button onclick='appOpen("C:\\Windows\\System32\\cmd.exe", "/c echo \"ProtonShell API\" & pause");'>
-							CMD with args
+							CMD с параметрами
 						</button>
 					</div>
 				</div>
 
 				<button onclick='copyCode("appOpen(\"https://example.com\", \"\");")'>
-					Copy
+					Копировать
 				</button>
 			</div>
 		</div>
@@ -352,32 +352,32 @@ function copyCode(code) {
 
 	<div class="section">
 
-		<div class="section-title">FILE</div>
+		<div class="section-title">ФАЙЛ</div>
 
 
 		<div class="method">
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">file.exists</div>
-					<div class="method-description">Checks whether a file exists.</div>
+					<div class="method-description">Проверяет, существует ли файл.</div>
 				</div>
 
 				<button onclick="fileExists('test.txt', function(response) {
 					showResult('fileExistsResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("fileExists(\"test.txt\");")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("fileExists(\"test.txt\", function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -391,25 +391,25 @@ function copyCode(code) {
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">file.writeText</div>
-					<div class="method-description">Writes text data to a file.</div>
+					<div class="method-description">Записывает текстовые данные в файл.</div>
 				</div>
 
 				<button onclick="fileWriteText('test.txt', 'Hello from ProtonShell!', function(response) {
 					showResult('fileWriteResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("fileWriteText(\"test.txt\", \"Hello from ProtonShell!\");")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("fileWriteText(\"test.txt\", \"Hello from ProtonShell!\", function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -423,25 +423,25 @@ function copyCode(code) {
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">file.readText</div>
-					<div class="method-description">Reads text data from a file.</div>
+					<div class="method-description">Читает текстовые данные из файла.</div>
 				</div>
 
 				<button onclick="fileReadText('test.txt', function(response) {
 					showResult('fileReadResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("fileReadText(\"test.txt\");")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("fileReadText(\"test.txt\", function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -455,25 +455,25 @@ function copyCode(code) {
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">file.delete</div>
-					<div class="method-description">Deletes a file.</div>
+					<div class="method-description">Удаляет файл.</div>
 				</div>
 
 				<button onclick="fileDelete('test.txt', function(response) {
 					showResult('fileDeleteResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("fileDelete(\"test.txt\");")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("fileDelete(\"test.txt\", function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -487,32 +487,32 @@ function copyCode(code) {
 
 	<div class="section">
 
-		<div class="section-title">FOLDER</div>
+		<div class="section-title">ПАПКА</div>
 
 
 		<div class="method">
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">folder.list</div>
-					<div class="method-description">Returns files and folders contained in a directory.</div>
+					<div class="method-description">Возвращает файлы и папки, содержащиеся в каталоге.</div>
 				</div>
 
 				<button onclick="folderList('C:\\', function(response) {
 					showResult('folderListResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("folderList(\"C:\\\\\");")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("folderList(\"C:\\\\\", function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -526,25 +526,25 @@ function copyCode(code) {
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">folder.exists</div>
-					<div class="method-description">Checks whether a folder exists.</div>
+					<div class="method-description">Проверяет, существует ли папка.</div>
 				</div>
 
 				<button onclick="folderExists('Data', function(response) {
 					showResult('folderExistsResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("folderExists(\"Data\");")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("folderExists(\"Data\", function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -558,25 +558,25 @@ function copyCode(code) {
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">folder.create</div>
-					<div class="method-description">Creates a folder.</div>
+					<div class="method-description">Создаёт папку.</div>
 				</div>
 
 				<button onclick="folderCreate('TestFolder', function(response) {
 					showResult('folderCreateResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("folderCreate(\"TestFolder\");")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("folderCreate(\"TestFolder\", function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -590,25 +590,25 @@ function copyCode(code) {
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">folder.delete</div>
-					<div class="method-description">Deletes a folder.</div>
+					<div class="method-description">Удаляет папку.</div>
 				</div>
 
 				<button onclick="folderDelete('TestFolder', function(response) {
 					showResult('folderDeleteResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("folderDelete(\"TestFolder\");")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("folderDelete(\"TestFolder\", function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -622,32 +622,32 @@ function copyCode(code) {
 
 	<div class="section">
 
-		<div class="section-title">CLIPBOARD</div>
+		<div class="section-title">БУФЕР ОБМЕНА</div>
 
 
 		<div class="method">
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">clipboard.get</div>
-					<div class="method-description">Returns the current text from the Windows clipboard.</div>
+					<div class="method-description">Возвращает текущий текст из буфера обмена Windows.</div>
 				</div>
 
 				<button onclick="clipboardGet(function(response) {
 					showResult('clipboardGetResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("clipboardGet();")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("clipboardGet(function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -661,25 +661,25 @@ function copyCode(code) {
 			<div class="method-row">
 				<div class="method-info">
 					<div class="method-name">clipboard.set</div>
-					<div class="method-description">Places text into the Windows clipboard.</div>
+					<div class="method-description">Помещает текст в буфер обмена Windows.</div>
 				</div>
 
 				<button onclick="clipboardSet('Hello from ProtonShell!', function(response) {
 					showResult('clipboardSetResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("clipboardSet(\"Hello from ProtonShell!\");")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("clipboardSet(\"Hello from ProtonShell!\", function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -693,7 +693,7 @@ function copyCode(code) {
 
 	<div class="section">
 
-		<div class="section-title">DIALOG</div>
+		<div class="section-title">ДИАЛОГИ</div>
 
 
 		<div class="method">
@@ -701,29 +701,29 @@ function copyCode(code) {
 				<div class="method-info">
 					<div class="method-name">dialog.openFile</div>
 					<div class="method-description">
-						Opens a standard Windows file selection dialog.
+						Открывает стандартный диалог Windows для выбора файла.
 					</div>
 				</div>
 
 				<button onclick="dialogOpenFile({
-					'title': 'Open text file',
+					'title': 'Открыть текстовый файл',
 					'filter': 'Text files (*.txt)|*.txt|All files (*.*)|*.*'
 				}, function(response) {
 					showResult('openFileResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("dialogOpenFile({\"title\": \"Open text file\", \"filter\": \"Text files (*.txt)|*.txt|All files (*.*)|*.*\"});")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("dialogOpenFile({\"title\": \"Open text file\", \"filter\": \"Text files (*.txt)|*.txt|All files (*.*)|*.*\"}, function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -738,30 +738,30 @@ function copyCode(code) {
 				<div class="method-info">
 					<div class="method-name">dialog.saveFile</div>
 					<div class="method-description">
-						Opens a standard Windows save file dialog.
+						Открывает стандартный диалог Windows для сохранения файла.
 					</div>
 				</div>
 
 				<button onclick="dialogSaveFile({
-					'title': 'Save text file',
+					'title': 'Сохранить текстовый файл',
 					'filter': 'Text files (*.txt)|*.txt|All files (*.*)|*.*',
 					'defaultPath': 'document.txt'
 				}, function(response) {
 					showResult('saveFileResult', response);
 				})">
-					Run
+					Запустить
 				</button>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("dialogSaveFile({\"title\": \"Save text file\", \"filter\": \"Text files (*.txt)|*.txt|All files (*.*)|*.*\", \"defaultPath\": \"document.txt\"});")'>
-							Copy example
+							Пример
 						</button>
 
 						<button onclick='copyCode("dialogSaveFile({\"title\": \"Save text file\", \"filter\": \"Text files (*.txt)|*.txt|All files (*.*)|*.*\", \"defaultPath\": \"document.txt\"}, function(response) {\n\talert(response);\n});")'>
-							Copy with callback
+							С callback
 						</button>
 					</div>
 				</div>
@@ -776,45 +776,46 @@ function copyCode(code) {
 				<div class="method-info">
 					<div class="method-name">dialog.selectFolder</div>
 					<div class="method-description">
-						Opens a standard Windows folder selection dialog.
+						Открывает стандартный диалог Windows для выбора папки.
 					</div>
 				</div>
 
 				<div class="dropdown">
-					<button>Run ▾</button>
+					<button>Запустить ▾</button>
+
 					<div class="dropdown-content">
 						<button onclick="dialogSelectFolder({}, function(response) {
 							showResult('selectFolderResult', response);
 						})">
-							Select folder
+							Выбрать папку
 						</button>
 						
 						<button onclick="dialogSelectFolder({'title': 'Folder to save', 'allowCreateFolder': true}, function(response) {
 							showResult('selectFolderResult', response);
 						})">
-							With title and create new
+							С заголовком и созданием папки
 						</button>
 					</div>
 				</div>
 
 				<div class="dropdown">
-					<button>Copy ▾</button>
+					<button>Копировать ▾</button>
 
 					<div class="dropdown-content">
 						<button onclick='copyCode("dialogSelectFolder({});")'>
-							Copy example
+							Выбрать папку
+						</button>
+
+						<button onclick='copyCode("dialogSelectFolder({\"title\": \"Folder to save\", \"allowCreateFolder\": true});")'>
+							С заголовком и созданием папки
 						</button>
 
 						<button onclick='copyCode("dialogSelectFolder({}, function(response) {\n\talert(response);\n});")'>
-							Copy with callback
-						</button>
-						
-						<button onclick='copyCode("dialogSelectFolder({});")'>
-							Copy example 2
+							Выбрать папку с callback
 						</button>
 
-						<button onclick='copyCode("dialogSelectFolder({\'title\': \'Folder to save\', \'allowCreateFolder\': true});")'>
-							Copy with callback
+						<button onclick='copyCode("dialogSelectFolder({\"title\": \"Folder to save\", \"allowCreateFolder\": true}, function(response) {\n\talert(response);\n});")'>
+							С заголовком, созданием и callback
 						</button>
 					</div>
 				</div>

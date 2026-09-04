@@ -23,13 +23,13 @@ object Main: TMain
     Height = 367
     Align = alClient
     TabOrder = 0
+    AllowSingleSignOnUsingOSPrimaryAccount = False
+    TargetCompatibleBrowserVersion = '117.0.2045.28'
     UserDataFolder = '%LOCALAPPDATA%\bds.exe.WebView2'
     OnCreateWebViewCompleted = EdgeBrowserCreateWebViewCompleted
     OnNavigationCompleted = EdgeBrowserNavigationCompleted
     OnNewWindowRequested = EdgeBrowserNewWindowRequested
     OnWebMessageReceived = EdgeBrowserWebMessageReceived
-    ExplicitWidth = 636
-    ExplicitHeight = 366
   end
   object DebugPanel: TPanel
     Left = 0
@@ -39,7 +39,6 @@ object Main: TMain
     Align = alTop
     TabOrder = 1
     Visible = False
-    ExplicitWidth = 636
     object PanelTools: TPanel
       Left = 183
       Top = 0

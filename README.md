@@ -3,8 +3,12 @@
 ← Choose language | Выберите язык
 
 # ProtonShell
-A lightweight shell for websites, simple web applications, based on the Microsoft Edge system browser. Based on it, you can make a separate window for websites such as: YouTube (TV), Google Docs, ChatGPT, Twitch chat, Instagram, with custom js script or some web application in its own window. In the `Apps` folder you can find ready-made startup options for YouTube TV, ChatGPT, Discord, Instagram, Twitch chat, X client, and a simple shell to run other applications. 
+Lightweight wrapper for running websites and web applications based on Microsoft Edge (WebView2), with support for a native API.
 
+ProtonShell allows you to run web content in separate windows, use custom JavaScript scripts, and interact with Windows through the API: work with files and folders, the clipboard, and system applications, open standard file and folder selection dialogs, and control the application window.
+
+ProtonShell is suitable for creating standalone applications based on existing web services, as well as for running your own web applications. The Apps folder contains examples of ready-to-use applications.
+ 
 ## Screenshots
 ![](https://github.com/user-attachments/assets/902b2e58-664d-460f-abfd-37de3c8c920b)
 [![](https://github.com/user-attachments/assets/3fb00a8e-e835-45fe-9fa6-46657f4c1e0b)](https://github.com/user-attachments/assets/08b09024-ff66-4e07-837c-5b4d918862d7)
@@ -20,6 +24,11 @@ A lightweight shell for websites, simple web applications, based on the Microsof
 3. Change the name, window parameters, icon, proxy, UserAgent and other settings, in the `Config.ini` configuration file.
 4. If necessary, change the `exe` icon, using [Resource Hacker](http://www.angusj.com/resourcehacker/) or specify the icon in the configuration file.
 
+## Download
+>Version for Windows 10, 11.<br>
+
+**[Download](https://github.com/r57zone/ProtonShell/releases)**
+
 ## Launch options
 When using startup parameters, reading the configuration file is not used, except for the `-c` parameter (custom configuration file).
 
@@ -27,13 +36,13 @@ When using startup parameters, reading the configuration file is not used, excep
 
 `-f index.html` - the path to the html file (relative or full).
 
-`-a “https://youtube.com/tv”` - the web site address.
+`-a "https://youtube.com/tv"` - the web site address.
 
-`-n “My app”` - the title of the application.
+`-n "My app"` - the title of the application.
 
 `-i MyIcon.ico` - path to the icon.
 
-`-u Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0` - user agent.
+`-u "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0"` - user agent.
 
 `-s 1.js` - user script (userscript).
 
@@ -55,27 +64,82 @@ When using startup parameters, reading the configuration file is not used, excep
 
 `-d` - enable debugging mode.
 
-## Host Commands
+## Native API
 
-`open app.exe` or `open "app.exe" -param1 -param2 "test"` - open the application, you can use both full path and relative path.
+First, include the ProtonShell API script in your HTML application:
 
-`folder Apps\` - list of files and folders.
+```html
+<script src="protonshell.js"></script>
+```
 
-`del 1.txt` - delete file.
+All API functions are asynchronous and can accept a callback for the response.
 
-`close` - close the application.
+### Application Control
 
-Details on usage can be found in the `index.html` file.
+| Command               | Description                                         | Parameters             |
+| --------------------- | --------------------------------------------------- | ---------------------- |
+| `app.close()`         | Closes the application window.                      | —                      |
+| `app.fullscreen()`    | Switches the application window to fullscreen mode. | —                      |
+| `app.restore()`       | Restores the normal window mode.                    | —                      |
+| `app.setTitle(title)` | Changes the application window title.               | `title` — window title |
+
+### System
+
+| Command                   | Description                                                       | Parameters                                        |
+| ------------------------- | ----------------------------------------------------------------- | ------------------------------------------------- |
+| `system.open(path, args)` | Opens a file, folder, application or URL using the Windows shell. | `path` — path or URL; `args` — optional arguments |
+
+### File Operations
+
+| Command                      | Description                   | Parameters                        |
+| ---------------------------- | ----------------------------- | --------------------------------- |
+| `file.exists(path)`          | Checks whether a file exists. | `path` — file path                |
+| `file.writeText(path, text)` | Writes text to a file.        | `path` — file path; `text` — text |
+| `file.readText(path)`        | Reads text from a file.       | `path` — file path                |
+| `file.delete(path)`          | Deletes a file.               | `path` — file path                |
+
+### Folder Operations
+
+| Command               | Description                                         | Parameters           |
+| --------------------- | --------------------------------------------------- | -------------------- |
+| `folder.list(path)`   | Returns a list of files and folders in a directory. | `path` — folder path |
+| `folder.exists(path)` | Checks whether a folder exists.                     | `path` — folder path |
+| `folder.create(path)` | Creates a folder.                                   | `path` — folder path |
+| `folder.delete(path)` | Deletes an empty folder.                            | `path` — folder path |
+
+### Clipboard
+
+| Command               | Description                                          | Parameters    |
+| --------------------- | ---------------------------------------------------- | ------------- |
+| `clipboard.get()`     | Returns the current text from the Windows clipboard. | —             |
+| `clipboard.set(text)` | Sets the Windows clipboard text.                     | `text` — text |
+
+### Dialogs
+
+| Command                        | Description                                         | Parameters                    |
+| ------------------------------ | --------------------------------------------------- | ----------------------------- |
+| `dialog.openFile(options)`     | Opens the standard Windows file selection dialog.   | `options` — optional settings |
+| `dialog.saveFile(options)`     | Opens the standard Windows save file dialog.        | `options` — optional settings |
+| `dialog.selectFolder(options)` | Opens the standard Windows folder selection dialog. | `options` — optional settings |
+
+### Callbacks
+
+Any API function can accept a callback as its last parameter:
+
+```javascript
+file.readText("test.txt", function(response) {
+	alert(response);
+});
+```
+
+The callback receives a JSON response from ProtonShell.
+
+For detailed parameters, options and response formats, see the examples in `index.html`.
 
 ## Debug mode
 For fast debugging you can enable a special mode in which the following is available: resizing, changing User agent, clearing all data. To enable it, change the `Debug` parameter to `1`.
 
 [![](https://github.com/user-attachments/assets/c71837e8-9097-438f-8e15-93efc42b65d3)](https://github.com/user-attachments/assets/e2e88215-3e52-46dd-b24a-42eb6bfdc3e7)
 
-## Download
->Version for Windows 10, 11.<br>
-
-**[Download](https://github.com/r57zone/ProtonShell/releases)**
-
 ## Feedback
-`r57zone[at]gmail.com`
+`r57zone@gmail.com`
