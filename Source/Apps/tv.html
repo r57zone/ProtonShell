@@ -76,10 +76,6 @@ var colorCounter = 0;
 var selectedIndex = 0;
 var appsCountInLine = 5;
 
-function openApp(block) {
-	system.open(block.getAttribute("appPath"), "");
-}
-
 function addApp(fileName) {
 	var block = document.createElement("div");
 	block.classList.add("block");
@@ -89,7 +85,7 @@ function addApp(fileName) {
 	block.style.background = gradients[colorCounter % gradients.length];
 
 	block.addEventListener("click", function() {
-		openApp(block);
+		system.open(block.getAttribute("appPath"), "");
 	});
 
 	block.addEventListener("mouseover", function() {
@@ -129,7 +125,7 @@ function handleKeyDown(event) {
 			selectedIndex -= appsCountInLine;
 		}
 	} else if (event.key === "Enter") {
-		app.open(blocks[selectedIndex].getAttribute("appPath"), "");
+		system.open(blocks[selectedIndex].getAttribute("appPath"), "");
 	}
 
 	updateSelection();
@@ -158,6 +154,12 @@ document.addEventListener("DOMContentLoaded", function() {
 		updateSelection();
 	});
 });
+
+window.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    app.close();
+}, true);
 </script>
 
 </head>
