@@ -495,13 +495,13 @@ function copyCode(code) {
 					<div class="method-description">Checks whether a folder exists.</div>
 				</div>
 
-				<button onclick="folder.exists('Data', function(response) {
+				<button onclick="folder.exists('TestFolder', function(response) {
 					showResult('folderExistsResult', response);
 				})">
 					Run
 				</button>
 
-				<button onclick='copyCode("folder.exists(\"Data\", function(response) {\n\talert(response);\n});")'>
+				<button onclick='copyCode("folder.exists(\"TestFolder\", function(response) {\n\talert(response);\n});")'>
 					Copy
 				</button>
 
