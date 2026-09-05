@@ -77,7 +77,7 @@ var selectedIndex = 0;
 var appsCountInLine = 5;
 
 function openApp(block) {
-	appOpen(block.getAttribute("appPath"), "");
+	system.open(block.getAttribute("appPath"), "");
 }
 
 function addApp(fileName) {
@@ -129,7 +129,7 @@ function handleKeyDown(event) {
 			selectedIndex -= appsCountInLine;
 		}
 	} else if (event.key === "Enter") {
-		appOpen(blocks[selectedIndex].getAttribute("appPath"), "");
+		app.open(blocks[selectedIndex].getAttribute("appPath"), "");
 	}
 
 	updateSelection();
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	document.body.focus();
 	document.addEventListener("keydown", handleKeyDown);
 
-	folderList(mainPath, function(response) {
+	folder.list(mainPath, function(response) {
 		if (!response.ok)
 			return;
 

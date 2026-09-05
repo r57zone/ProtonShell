@@ -210,23 +210,107 @@
             }
         }
 
-        // Window
+        /* API: app */
+        var app = {
+            close: function() {
+                host("app.close");
+            },
+            fullscreen: function() {
+                host("app.fullscreen");
+            },
+            restore: function() {
+                host("app.restore");
+            },
+            setTitle: function(title) {
+                host("app.setTitle", {
+                    "title": title
+                });
+            }
+        };
 
-        function windowSetTitle(title) {
-            host("app.setTitle", {"title": title});
-        }
+        /* API: system */
+        var system = {
+            open: function(path, args) {
+                host("system.open", {
+                    "path": path,
+                    "args": args || ""
+                });
+            }
+        };
 
-        // Folder
+        /* API: file */
+        var file = {
+            delete: function(path, callback) {
+                host("file.delete", {
+                    "path": path
+                }, callback);
+            },
+            exists: function(path, callback) {
+                host("file.exists", {
+                    "path": path
+                }, callback);
+            },
+            writeText: function(path, text, callback) {
+                host("file.writeText", {
+                    "path": path,
+                    "text": text
+                }, callback);
+            },
+            readText: function(path, callback) {
+                host("file.readText", {
+                    "path": path
+                }, callback);
+            }
+        };
 
-        function folderList(path, callback) {
-            host("folder.list", {"path": path}, callback);
-        }
+        /* API: folder */
+        var folder = {
+            list: function(path, callback) {
+                host("folder.list", {
+                    "path": path
+                }, callback);
+            },
+            exists: function(path, callback) {
+                host("folder.exists", {
+                    "path": path
+                }, callback);
+            },
+            create: function(path, callback) {
+                host("folder.create", {
+                    "path": path
+                }, callback);
+            },
+            delete: function(path, callback) {
+                host("folder.delete", {
+                    "path": path
+                }, callback);
+            }
+        };
 
-        // Dialog
+        /* API: clipboard */
+        var clipboard = {
+            get: function(callback) {
+                host("clipboard.get", {}, callback);
+            },
+            set: function(text, callback) {
+                host("clipboard.set", {
+                    "text": text
+                }, callback);
+            }
+        };
 
-        function dialogSelectFolder(options, callback) {
-            host("dialog.selectFolder", options || {}, callback);
-        }
+        /* API: dialog */
+        var dialog = {
+            openFile: function(options, callback) {
+                host("dialog.openFile", options || {}, callback);
+            },
+            saveFile: function(options, callback) {
+                host("dialog.saveFile", options || {}, callback);
+            },
+            selectFolder: function(options, callback) {
+                host("dialog.selectFolder", options || {}, callback);
+            }
+        };
 
         var playlist = [];
         var currentIndex = -1;
@@ -236,7 +320,7 @@
         var audio;
 
         function chooseFolder() {
-            dialogSelectFolder({
+            dialog.selectFolder({
                 "title": "Select music folder"
             }, function(response) {
                 if (!response.ok) {
@@ -259,7 +343,7 @@
             setStatus("Loading...");
             document.getElementById("folder").textContent = path;
 
-            folderList(path, function(response) {
+            folder.list(path, function(response) {
                 if (!response.ok) {
                     playlist = [];
                     renderPlaylist();
@@ -296,7 +380,7 @@
                     setStatus(playlist.length + " songs");
                 }
 
-                windowSetTitle(
+                app.setTitle(
                     "ProtonShell Player - " +
                     getFileName(path)
                 );
@@ -400,7 +484,7 @@
                 playlist.length
             );
 
-            windowSetTitle(
+            app.setTitle(
                 "ProtonShell Player - " +
                 song.name
             );
@@ -574,7 +658,7 @@
                 setStatus("Unable to play this file.");
             });
 
-            windowSetTitle("ProtonShell Player");
+            app.setTitle("ProtonShell Player");
 
             chooseFolder();
         });

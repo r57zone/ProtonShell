@@ -319,6 +319,7 @@ var
   SaveDialog: TSaveDialog;
   ResultJSON: TJSONValue;
   AllowCreateFolder: boolean;
+  FileTextSL: TStringList;
 begin
   CommandP:=nil;
 
@@ -492,14 +493,15 @@ begin
       Text:=Data.GetValue('text').Value;
 
       try
-        with TStringList.Create do
+        Text:=StringReplace(Text, #13#10, #10, [rfReplaceAll]);
+        Text:=StringReplace(Text, #10, sLineBreak, [rfReplaceAll]);
+
+        FileTextSL:=TStringList.Create;
         try
-          Text:=StringReplace(Text, #13#10, #10, [rfReplaceAll]);
-          Text:=StringReplace(Text, #10, sLineBreak, [rfReplaceAll]);
-          Add(Text);
-          SaveToFile(Path, TEncoding.UTF8);
+          FileTextSL.Text:=Text;
+          FileTextSL.SaveToFile(Path, TEncoding.UTF8);
         finally
-          Free;
+          FileTextSL.Free;
         end;
 
         SendWebMessage(ID, true, '{"written":true}', '');
@@ -530,17 +532,17 @@ begin
       end;
 
       try
-        with TStringList.Create do
+        FileTextSL:=TStringList.Create;
         try
-          LoadFromFile(Path, TEncoding.UTF8);
-          Text:=Self.Text;
+          FileTextSL.LoadFromFile(Path, TEncoding.UTF8);
+          Text:=FileTextSL.Text;
         finally
-          Free;
+          FileTextSL.Free;
         end;
 
         Response:=TJSONObject.Create;
         try
-          Response.AddPair('text',Text);
+          Response.AddPair('text', Text);
           SendWebMessage(ID, true, Response.ToString, '');
         finally
           Response.Free;

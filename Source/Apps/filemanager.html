@@ -216,49 +216,107 @@
             }
         }
 
-        // Window
+        /* API: app */
+        var app = {
+            close: function() {
+                host("app.close");
+            },
+            fullscreen: function() {
+                host("app.fullscreen");
+            },
+            restore: function() {
+                host("app.restore");
+            },
+            setTitle: function(title) {
+                host("app.setTitle", {
+                    "title": title
+                });
+            }
+        };
 
-        function windowSetTitle(title) {
-            host("app.setTitle", {"title": title});
-        }
+        /* API: system */
+        var system = {
+            open: function(path, args) {
+                host("system.open", {
+                    "path": path,
+                    "args": args || ""
+                });
+            }
+        };
 
-        // App
+        /* API: file */
+        var file = {
+            delete: function(path, callback) {
+                host("file.delete", {
+                    "path": path
+                }, callback);
+            },
+            exists: function(path, callback) {
+                host("file.exists", {
+                    "path": path
+                }, callback);
+            },
+            writeText: function(path, text, callback) {
+                host("file.writeText", {
+                    "path": path,
+                    "text": text
+                }, callback);
+            },
+            readText: function(path, callback) {
+                host("file.readText", {
+                    "path": path
+                }, callback);
+            }
+        };
 
-        function appOpen(path, args) {
-            host("system.open", {"path": path, "args": args || ""});
-        }
+        /* API: folder */
+        var folder = {
+            list: function(path, callback) {
+                host("folder.list", {
+                    "path": path
+                }, callback);
+            },
+            exists: function(path, callback) {
+                host("folder.exists", {
+                    "path": path
+                }, callback);
+            },
+            create: function(path, callback) {
+                host("folder.create", {
+                    "path": path
+                }, callback);
+            },
+            delete: function(path, callback) {
+                host("folder.delete", {
+                    "path": path
+                }, callback);
+            }
+        };
 
-        // File
+        /* API: clipboard */
+        var clipboard = {
+            get: function(callback) {
+                host("clipboard.get", {}, callback);
+            },
+            set: function(text, callback) {
+                host("clipboard.set", {
+                    "text": text
+                }, callback);
+            }
+        };
 
-        function fileDelete(path, callback) {
-            host("file.delete", {"path": path}, callback);
-        }
-
-        // Folder
-
-        function folderList(path, callback) {
-            host("folder.list", {"path": path}, callback);
-        }
-
-        function folderCreate(path, callback) {
-            host("folder.create", {"path": path}, callback);
-        }
-
-        function folderDelete(path, callback) {
-            host("folder.delete", {"path": path}, callback);
-        }
-
-        // Dialog
-
-        function dialogSelectFolder(options, callback) {
-            host("dialog.selectFolder", options || {}, callback);
-        }
-
-        // Clipboard
-
-        function clipboardSet(text, callback) {
-            host("clipboard.set", {"text": text}, callback);
-        }
+        /* API: dialog */
+        var dialog = {
+            openFile: function(options, callback) {
+                host("dialog.openFile", options || {}, callback);
+            },
+            saveFile: function(options, callback) {
+                host("dialog.saveFile", options || {}, callback);
+            },
+            selectFolder: function(options, callback) {
+                host("dialog.selectFolder", options || {}, callback);
+            }
+        };
 
         var currentPath = "C:\\";
         var selectedPath = "";
@@ -278,7 +336,7 @@
             document.getElementById("fileList").innerHTML =
                 '<div class="empty">Loading...</div>';
 
-            folderList(path, function(response) {
+            folder.list(path, function(response) {
                 if (!response.ok) {
                     document.getElementById("fileList").innerHTML =
                         '<div class="empty">Error: ' +
@@ -332,7 +390,7 @@
                     if (isFolder) {
                         loadFolder(path);
                     } else {
-                        appOpen(path, "");
+                        system.open(path, "");
                     }
                 };
 
@@ -445,7 +503,7 @@
         }
 
         function chooseFolder() {
-            dialogSelectFolder({
+            dialog.selectFolder({
                 "title": "Select folder"
             }, function(response) {
                 if (response.ok &&
@@ -464,7 +522,7 @@
                 return;
             }
 
-            folderCreate(joinPath(currentPath, name), function(response) {
+            folder.create(joinPath(currentPath, name), function(response) {
                 if (response.ok) {
                     loadFolder(currentPath);
                 } else {
@@ -483,7 +541,7 @@
             }
 
             if (selectedIsFolder) {
-                folderDelete(selectedPath, function(response) {
+                folder.delete(selectedPath, function(response) {
                     if (response.ok) {
                         loadFolder(currentPath);
                     } else {
@@ -491,7 +549,7 @@
                     }
                 });
             } else {
-                fileDelete(selectedPath, function(response) {
+                file.delete(selectedPath, function(response) {
                     if (response.ok) {
                         loadFolder(currentPath);
                     } else {
@@ -508,7 +566,7 @@
                 return;
             }
 
-            clipboardSet(selectedPath, function(response) {
+            clipboard.set(selectedPath, function(response) {
                 if (!response.ok) {
                     alert(response.error || "Clipboard error.");
                 }
@@ -525,7 +583,7 @@
             if (selectedIsFolder) {
                 loadFolder(selectedPath);
             } else {
-                appOpen(selectedPath, "");
+                system.open(selectedPath, "");
             }
 
             hideContextMenu();
@@ -585,7 +643,7 @@
         });
 
         window.addEventListener("load", function() {
-            windowSetTitle("ProtonShell File Manager");
+            app.setTitle("ProtonShell File Manager");
 
             document.getElementById("path").addEventListener(
                 "keydown",
