@@ -33,74 +33,127 @@ function handleMessageFromHost(message) {
 	}
 }
 
-function appClose() {
-	host("app.close");
-}
 
-function appFullscreen() {
-	host("app.fullscreen");
-}
+// App
+var app = {
+	close: function() {
+		host("app.close");
+	},
 
-function appRestore() {
-	host("app.restore");
-}
+	fullscreen: function() {
+		host("app.fullscreen");
+	},
 
-function appSetTitle(title) {
-	host("app.setTitle", {"title": title});
-}
+	restore: function() {
+		host("app.restore");
+	},
 
-function appOpen(path, args) {
-	host("system.open", {"path": path, "args": args || ""});
-}
+	setTitle: function(title) {
+		host("app.setTitle", {
+			"title": title
+		});
+	}
+};
 
-function fileDelete(path, callback) {
-	host("file.delete", {"path": path}, callback);
-}
 
-function fileExists(path, callback) {
-	host("file.exists", {"path": path}, callback);
-}
+// System
 
-function fileWriteText(path, text, callback) {
-	host("file.writeText", {"path": path, "text": text}, callback);
-}
+var system = {
+	open: function(path, args) {
+		host("system.open", {
+			"path": path,
+			"args": args || ""
+		});
+	}
+};
 
-function fileReadText(path, callback) {
-	host("file.readText", {"path": path}, callback);
-}
 
-function folderList(path, callback) {
-	host("folder.list", {"path": path}, callback);
-}
+// Files
 
-function folderExists(path, callback) {
-	host("folder.exists", {"path": path}, callback);
-}
+var file = {
+	delete: function(path, callback) {
+		host("file.delete", {
+			"path": path
+		}, callback);
+	},
 
-function folderCreate(path, callback) {
-	host("folder.create", {"path": path}, callback);
-}
+	exists: function(path, callback) {
+		host("file.exists", {
+			"path": path
+		}, callback);
+	},
 
-function folderDelete(path, callback) {
-	host("folder.delete", {"path": path}, callback);
-}
+	writeText: function(path, text, callback) {
+		host("file.writeText", {
+			"path": path,
+			"text": text
+		}, callback);
+	},
 
-function clipboardGet(callback) {
-	host("clipboard.get", {}, callback);
-}
+	readText: function(path, callback) {
+		host("file.readText", {
+			"path": path
+		}, callback);
+	}
+};
 
-function clipboardSet(text, callback) {
-	host("clipboard.set", {"text": text}, callback);
-}
 
-function dialogOpenFile(options, callback) {
-	host("dialog.openFile", options || {}, callback);
-}
+// Folders
 
-function dialogSaveFile(options, callback) {
-	host("dialog.saveFile", options || {}, callback);
-}
+var folder = {
+	list: function(path, callback) {
+		host("folder.list", {
+			"path": path
+		}, callback);
+	},
 
-function dialogSelectFolder(options, callback) {
-	host("dialog.selectFolder", options || {}, callback);
-}
+	exists: function(path, callback) {
+		host("folder.exists", {
+			"path": path
+		}, callback);
+	},
+
+	create: function(path, callback) {
+		host("folder.create", {
+			"path": path
+		}, callback);
+	},
+
+	delete: function(path, callback) {
+		host("folder.delete", {
+			"path": path
+		}, callback);
+	}
+};
+
+
+// Clipboard
+
+var clipboard = {
+	get: function(callback) {
+		host("clipboard.get", {}, callback);
+	},
+
+	set: function(text, callback) {
+		host("clipboard.set", {
+			"text": text
+		}, callback);
+	}
+};
+
+
+// Dialogs
+
+var dialog = {
+	openFile: function(options, callback) {
+		host("dialog.openFile", options || {}, callback);
+	},
+
+	saveFile: function(options, callback) {
+		host("dialog.saveFile", options || {}, callback);
+	},
+
+	selectFolder: function(options, callback) {
+		host("dialog.selectFolder", options || {}, callback);
+	}
+};
