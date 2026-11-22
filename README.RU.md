@@ -42,6 +42,14 @@ ProtonShell подходит как для создания отдельных �
 
 `-u "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0"` - пользовательский агент (user agent).
 
+`-lang "en-US"` - язык браузера.
+
+`-al "en-US"` - язык HTTP-запросов.
+
+`-platform MacIntel` - язык браузера.
+
+`-tz "Europe/Berlin"` - часовой пояс браузера.
+
 `-s 1.js` - пользовательский скрипт (userscript).
 
 `-w` - ширина приложения.

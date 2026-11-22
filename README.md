@@ -44,6 +44,14 @@ When using startup parameters, reading the configuration file is not used, excep
 
 `-u "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0"` - user agent.
 
+`-lang "en-US"` - browser language.
+
+`-al "en-US"` - language of HTTP requests.
+
+`-platform MacIntel` - browser platform.
+
+`-tz "Europe/Berlin"` - browser time zone.
+
 `-s 1.js` - user script (userscript).
 
 `-w` - width of the application.

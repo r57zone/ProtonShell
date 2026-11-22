@@ -18,6 +18,14 @@ type
   end;
 
 type
+  TDevToolsCallback = class(TInterfacedObject,
+    ICoreWebView2CallDevToolsProtocolMethodCompletedHandler)
+  public
+    function Invoke(errorCode: HResult;
+      returnObjectAsJson: PWideChar): HResult; stdcall;
+  end;
+
+type
   TMain = class(TForm)
     EdgeBrowser: TEdgeBrowser;
     DebugPanel: TPanel;
@@ -65,7 +73,8 @@ var
   Main: TMain;
   WinOldWidth, WinOldHeight, WinOldTop, WinOldLeft, WinOldState: integer;
   WinSaveSize, WinSavePos, WinSaveState, ReturnPrevSystemProxy, UserAgentsCBChanged: boolean;
-  AppPath, MainURL, EdgeUserAgent, NewUserAgent, SystemProxy, PrevSystemProxy, ConfigFile: string;
+  AppPath, MainURL, EdgeUserAgent, NewUserAgent, SystemProxy, PrevSystemProxy, ConfigFile,
+  BrowserLanguage, BrowserAcceptLanguage, BrowserPlatform, BrowserTimeZone: string;
   OpenExternalLinks, LoadUserScript: boolean;
   ZoomDefault: integer;
   UserScriptFile: TStringList;
@@ -148,14 +157,85 @@ procedure TMain.EdgeBrowserCreateWebViewCompleted(Sender: TCustomEdgeBrowser;
   AResult: HRESULT);
 var
   WebViewSettings: ICoreWebView2Settings2;
+  Callback: ICoreWebView2CallDevToolsProtocolMethodCompletedHandler;
+  UserAgentPtr: PWideChar;
+  UserAgentStr: string;
+  JsonParams: string;
+  Params: TJSONObject;
+  HR: HRESULT;
 begin
-  if Trim(NewUserAgent) = '' then Exit;
-  // You must query SettingsInterface2 from SettingsInterface it's important
-  Sender.SettingsInterface.QueryInterface(IID_ICoreWebView2Settings2, WebViewSettings);
+  // Получаем настройки WebView2
+  Sender.SettingsInterface.QueryInterface(
+    IID_ICoreWebView2Settings2, WebViewSettings
+  );
+
   if not Assigned(WebViewSettings) then
     raise Exception.Create('ICoreWebView2Settings2 not found');
 
-  WebViewSettings.Set_UserAgent(PWideChar(NewUserAgent));
+  // Устанавливаем пользовательский User-Agent, если задан
+  if Trim(NewUserAgent) <> '' then
+    WebViewSettings.Set_UserAgent(PWideChar(NewUserAgent));
+
+  Callback:=TDevToolsCallback.Create;
+
+  // Настраиваем платформу JavaScript
+  if BrowserPlatform <> '' then
+  begin
+    UserAgentPtr := nil;
+    UserAgentStr := '';
+
+    HR := WebViewSettings.Get_UserAgent(UserAgentPtr);
+
+    if Succeeded(HR) and (UserAgentPtr <> nil) then
+    begin
+      try
+        UserAgentStr := UserAgentPtr;
+      finally
+        CoTaskMemFree(UserAgentPtr);
+      end;
+    end;
+
+    if UserAgentStr <> '' then
+    begin
+      Params := TJSONObject.Create;
+      try
+        Params.AddPair('userAgent', UserAgentStr);
+        Params.AddPair('platform', BrowserPlatform);
+
+        if BrowserAcceptLanguage <> '' then
+          Params.AddPair('acceptLanguage', BrowserAcceptLanguage);
+
+        JsonParams := Params.ToJSON;
+
+        Sender.DefaultInterface.CallDevToolsProtocolMethod(
+          'Emulation.setUserAgentOverride',
+          PWideChar(JsonParams),
+          Callback
+        );
+      finally
+        Params.Free;
+      end;
+    end;
+  end;
+
+  // Настраиваем часовой пояс
+  if BrowserTimeZone <> '' then
+  begin
+    Params := TJSONObject.Create;
+    try
+      Params.AddPair('timezoneId', BrowserTimeZone);
+
+      JsonParams := Params.ToJSON;
+
+      Sender.DefaultInterface.CallDevToolsProtocolMethod(
+        'Emulation.setTimezoneOverride',
+        PWideChar(JsonParams),
+        Callback
+      );
+    finally
+      Params.Free;
+    end;
+  end;
 
   //HR := WebViewSettings.Get_UserAgent(PWideChar(EdgeUserAgent));
   //if not SUCCEEDED(HR) then
@@ -976,6 +1056,11 @@ begin
   OpenExternalLinks:=Ini.ReadBool('Main', 'OpenExternalLinks', false);
   UserScriptPath:=Ini.ReadString('Main', 'UserScript', '');
 
+  BrowserLanguage:=Trim(Ini.ReadString('Main', 'Language', ''));
+  BrowserAcceptLanguage:=Trim(Ini.ReadString('Main', 'AcceptLanguage', ''));
+  BrowserPlatform:=Trim(Ini.ReadString('Main', 'Platform', ''));
+  BrowserTimeZone:=Trim(Ini.ReadString('Main', 'TimeZone', ''));
+
   // Windows sizes
   ClientWidth:=Ini.ReadInteger('Window', 'Width', ClientWidth);
   ClientHeight:=Ini.ReadInteger('Window', 'Height', ClientHeight);
@@ -1045,6 +1130,10 @@ begin
     if ParamStrLower = '-i' then IconPath:=ParamStr(i + 1);
     if ParamStrLower = '-p' then SystemProxy:=ParamStr(i + 1);
     if ParamStrLower = '-u' then NewUserAgent:=ParamStr(i + 1);
+    if ParamStrLower = '-lang' then BrowserLanguage:=ParamStr(i + 1);
+    if ParamStrLower = '-al' then BrowserAcceptLanguage:=ParamStr(i + 1);
+    if ParamStrLower = '-platform' then BrowserPlatform:=ParamStr(i + 1);
+    if ParamStrLower = '-tz' then BrowserTimeZone:=ParamStr(i + 1);
     if ParamStrLower = '-s' then UserScriptPath:=ParamStr(i + 1);
     if ParamStrLower = '-b' then WindowBorderStyle:=StrToIntDef(ParamStr(i + 1), 1);
     if ParamStrLower = '-rp' then ReturnPrevSystemProxy:=true;
@@ -1091,6 +1180,15 @@ begin
     LocalFile:=AppPath + LocalFile;
 
   //ShowMessage('Local file: "' + LocalFile + '", Web: "' + WebAddress + '"') ;
+
+  // Browser language
+  if BrowserLanguage <> '' then begin
+    EdgeBrowser.Language:=BrowserLanguage;
+
+    // HTTP request language
+    if BrowserAcceptLanguage <> '' then
+      EdgeBrowser.AdditionalBrowserArguments:='--lang=' + BrowserLanguage + ' --accept-lang=' + BrowserAcceptLanguage;
+  end;
 
   // Applying parameters
   // Address
@@ -1216,6 +1314,14 @@ begin
   UserAgentsCB.Hint:=UserAgentsCB.Items.Strings[UserAgentsCB.ItemIndex];
   Sleep(15);
   EdgeBrowser.Refresh;
+end;
+
+{ TDevToolsCallback }
+
+function TDevToolsCallback.Invoke(errorCode: HResult;
+  returnObjectAsJson: PWideChar): HResult;
+begin
+  Result:=S_OK;
 end;
 
 end.

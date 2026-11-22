@@ -1,0 +1,1 @@
+cmd /d /c start "" /B "..\ProtonShell.exe" ProtonShell.exe -lang de-DE -al "de-DE,de,en" -platform MacIntel -tz "Europe/Rome" -u "Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko" -a "https://browserleaks.com/javascript" -w 1280 -h 800 -n "Browser Fake Identity" 
